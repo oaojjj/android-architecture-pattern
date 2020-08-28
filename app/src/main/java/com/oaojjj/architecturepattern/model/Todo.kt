@@ -8,7 +8,7 @@ data class Todo(
     val content: String
 ) {
     @PrimaryKey(autoGenerate = true)
-    var id: Int = 0
+    var id: Long? = null
     override fun toString(): String {
         return content
     }

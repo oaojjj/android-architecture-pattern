@@ -2,13 +2,13 @@ package com.oaojjj.architecturepattern
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.ContextMenu
 import android.view.MenuItem
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import com.oaojjj.architecturepattern.model.Todo
+import com.oaojjj.architecturepattern.model.TodoDao
 import com.oaojjj.architecturepattern.model.TodoModel
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -16,7 +16,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 // view는 xml_layout 자체이다.
 class MainActivity : AppCompatActivity(), View.OnClickListener,
     AdapterView.OnItemLongClickListener, PopupMenu.OnMenuItemClickListener {
-    private lateinit var todoModel: TodoModel
+    private lateinit var todoModel: TodoDao
     private lateinit var data: MutableList<Todo>
     private lateinit var mAdapter: ArrayAdapter<Todo>
     private lateinit var newTodo: Todo
@@ -30,14 +30,14 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,
         setContentView(R.layout.activity_main)
 
         // model
-        todoModel = TodoModel(this)
+        todoModel = TodoModel(this).db().todoDao()
 
         // controller
         btn_add.setOnClickListener(this)
         lv_list.onItemLongClickListener = this
 
         // init data, adapter
-        data = todoModel.db().todoDao().getAll()
+        data = todoModel.getAll()
         mAdapter = ArrayAdapter(this@MainActivity, android.R.layout.simple_list_item_1, data)
         lv_list.adapter = mAdapter
 
@@ -59,13 +59,13 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,
         newTodo = Todo(et_content.text.toString())
 
         // model에 data를 추가를 요청하고 ui를 다시 갱신
-        todoModel.db().todoDao().insert(newTodo)
+        todoModel.insert(newTodo)
         data.add(newTodo)
         mAdapter.notifyDataSetChanged()
 
         et_content.setText("")
     }
-    
+
     // view
     // 리스트 아이템을 길게 클릭할 시 팝업메뉴 생성
     override fun onItemLongClick(
@@ -78,7 +78,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,
 
         menuInflater.inflate(R.menu.menu_main, popupMenu.menu)
 
-        Log.d("tag", position.toString())
         popupMenu.setOnMenuItemClickListener(this)
         popupMenu.show()
         mPosition = position
@@ -94,7 +93,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,
                 true
             }
             R.id.btn_remove -> {
-                todoModel.db().todoDao().delete(data[mPosition])
+                todoModel.delete(todoModel.getTodo(data[mPosition].content))
                 data.removeAt(mPosition)
                 mAdapter.notifyDataSetChanged()
                 true
@@ -117,8 +116,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,
         alertDialog.setPositiveButton(
             "확인"
         ) { _, _ ->
-            newTodo = Todo(et.text.toString())
-            todoModel.db().todoDao().update(newTodo)
+            newTodo = Todo(et.text.toString()).apply {
+                id = todoModel.getTodo(data[mPosition].content).id
+            }
+            todoModel.update(newTodo)
             data[mPosition] = newTodo
             mAdapter.notifyDataSetChanged()
         }
