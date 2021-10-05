@@ -2,7 +2,6 @@ package com.oaojjj.architecturepattern.model
 
 import android.content.Context
 import androidx.room.Room
-import com.oaojjj.architecturepattern.TodoDatabase
 
 // model
 class TodoModel(mContext: Context) {

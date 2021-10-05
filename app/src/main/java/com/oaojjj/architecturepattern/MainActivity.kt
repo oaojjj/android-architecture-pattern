@@ -17,28 +17,25 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity(), View.OnClickListener,
     AdapterView.OnItemLongClickListener, PopupMenu.OnMenuItemClickListener {
     private lateinit var todoModel: TodoDao
-    private lateinit var data: MutableList<Todo>
+    private lateinit var dataList: MutableList<Todo>
     private lateinit var mAdapter: ArrayAdapter<Todo>
     private lateinit var newTodo: Todo
     private var mPosition: Int = 0
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // view
+        // view, controller
         setContentView(R.layout.activity_main)
+        btn_add.setOnClickListener(this)
+        lv_list.onItemLongClickListener = this
 
         // model
         todoModel = TodoModel(this).db().todoDao()
 
-        // controller
-        btn_add.setOnClickListener(this)
-        lv_list.onItemLongClickListener = this
-
         // init data, adapter
-        data = todoModel.getAll()
-        mAdapter = ArrayAdapter(this@MainActivity, android.R.layout.simple_list_item_1, data)
+        dataList = todoModel.getAll()
+        mAdapter = ArrayAdapter(this@MainActivity, android.R.layout.simple_list_item_1, dataList)
         lv_list.adapter = mAdapter
 
         // to use the menu
@@ -54,47 +51,46 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,
         super.onCreateContextMenu(menu, v, menuInfo)
     }
 
-    // Todo데이터 추가 사용자 이벤트 발생
+    // 데이터 추가 -> 사용자 이벤트 발생
     override fun onClick(v: View?) {
-        newTodo = Todo(et_content.text.toString())
+        newTodo = Todo(et_content.text.toString()) // 새로운 데이터
 
         // model에 data를 추가를 요청하고 ui를 다시 갱신
+        // 데이터 변경
         todoModel.insert(newTodo)
-        data.add(newTodo)
+        dataList.add(newTodo)
         mAdapter.notifyDataSetChanged()
 
         et_content.setText("")
     }
 
-    // view
-    // 리스트 아이템을 길게 클릭할 시 팝업메뉴 생성
+    // view, controller -> show popup menu
     override fun onItemLongClick(
         adapterView: AdapterView<*>?,
         view: View?,
         position: Int,
         id: Long
     ): Boolean {
-        val popupMenu = PopupMenu(this, view)
-
+        val popupMenu =
+            PopupMenu(this, view).apply { setOnMenuItemClickListener(this@MainActivity) }
         menuInflater.inflate(R.menu.menu_main, popupMenu.menu)
-
-        popupMenu.setOnMenuItemClickListener(this)
         popupMenu.show()
+
         mPosition = position
         return true
     }
 
     // controller
     override fun onMenuItemClick(item: MenuItem?): Boolean {
-        var id = item!!.itemId
-        return when (id) {
+        return when (item?.itemId) {
             R.id.btn_update -> {
-                createAlertDialog()
+                showAlertDialog()
                 true
             }
             R.id.btn_remove -> {
-                todoModel.delete(todoModel.getTodo(data[mPosition].content))
-                data.removeAt(mPosition)
+                // 데이터 변경
+                todoModel.delete(todoModel.getTodo(dataList[mPosition].content))
+                dataList.removeAt(mPosition)
                 mAdapter.notifyDataSetChanged()
                 true
             }
@@ -102,25 +98,26 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,
         }
     }
 
-    private fun createAlertDialog() {
+    // view, controller
+    // 수정버튼 클릭 시 다이얼로그 생성
+    private fun showAlertDialog() {
         // view
-        // 수정버튼 클릭 시 다이얼로그 생성
-        val alertDialog = AlertDialog.Builder(this)
-        alertDialog.setTitle("수정")
-        alertDialog.setMessage("수정할 내용 입력")
-
         val et = EditText(this)
-        alertDialog.setView(et)
+        val alertDialog = AlertDialog.Builder(this).apply {
+            setTitle("수정")
+            setMessage("수정할 내용 입력")
+            setView(et)
+        }
 
         // controller
-        alertDialog.setPositiveButton(
-            "확인"
-        ) { _, _ ->
+        alertDialog.setPositiveButton("확인") { _, _ ->
             newTodo = Todo(et.text.toString()).apply {
-                id = todoModel.getTodo(data[mPosition].content).id
+                id = todoModel.getTodo(dataList[mPosition].content).id
             }
+
+            // 데이터 변경
             todoModel.update(newTodo)
-            data[mPosition] = newTodo
+            dataList[mPosition] = newTodo
             mAdapter.notifyDataSetChanged()
         }
         alertDialog.show()
