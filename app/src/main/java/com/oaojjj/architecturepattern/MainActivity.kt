@@ -57,6 +57,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,
 
         // model에 data를 추가를 요청하고 ui를 다시 갱신
         // 데이터 변경
+        // todo 데이터 변경되는 부분을 좀 손봐야할듯?
         todoModel.insert(newTodo)
         dataList.add(newTodo)
         mAdapter.notifyDataSetChanged()
