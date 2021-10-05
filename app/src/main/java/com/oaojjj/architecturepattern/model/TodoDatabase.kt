@@ -20,7 +20,7 @@ abstract class TodoDatabase : RoomDatabase() {
             ).fallbackToDestructiveMigration()
                 .allowMainThreadQueries()
                 .build()
-                .also { INSTANCE = it }
+                .apply { INSTANCE = this }
         }
     }
 }

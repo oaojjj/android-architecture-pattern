@@ -16,10 +16,8 @@ import kotlinx.android.synthetic.main.activity_main.*
 // view는 xml_layout 자체이다.
 class MainActivity : AppCompatActivity(), View.OnClickListener,
     AdapterView.OnItemLongClickListener, PopupMenu.OnMenuItemClickListener {
-    private lateinit var todoModel: TodoDao
-    private lateinit var dataList: MutableList<Todo>
+    private lateinit var todoModel: TodoModel
     private lateinit var mAdapter: ArrayAdapter<Todo>
-    private lateinit var newTodo: Todo
     private var mPosition: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,17 +29,20 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,
         lv_list.onItemLongClickListener = this
 
         // model
-        todoModel = TodoModel(this).db().todoDao()
+        todoModel = TodoModel(this)
 
         // init data, adapter
-        dataList = todoModel.getAll()
-        mAdapter = ArrayAdapter(this@MainActivity, android.R.layout.simple_list_item_1, dataList)
-        lv_list.adapter = mAdapter
+        lv_list.adapter = ArrayAdapter(
+            this@MainActivity,
+            android.R.layout.simple_list_item_1,
+            todoModel.getDataList()
+        ).apply { mAdapter = this }
 
         // to use the menu
         registerForContextMenu(lv_list)
     }
 
+    // view
     override fun onCreateContextMenu(
         menu: ContextMenu?,
         v: View?,
@@ -53,13 +54,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,
 
     // 데이터 추가 -> 사용자 이벤트 발생
     override fun onClick(v: View?) {
-        newTodo = Todo(et_content.text.toString()) // 새로운 데이터
-
-        // model에 data를 추가를 요청하고 ui를 다시 갱신
-        // 데이터 변경
-        // todo 데이터 변경되는 부분을 좀 손봐야할듯?
-        todoModel.insert(newTodo)
-        dataList.add(newTodo)
+        // model에 data 추가를 요청하고 ui 갱신
+        todoModel.addTodo(et_content.text.toString())
         mAdapter.notifyDataSetChanged()
 
         et_content.setText("")
@@ -82,6 +78,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,
     }
 
     // controller
+    // 데이터 수정, 삭제 -> 사용자 이벤트 발생
     override fun onMenuItemClick(item: MenuItem?): Boolean {
         return when (item?.itemId) {
             R.id.btn_update -> {
@@ -89,9 +86,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,
                 true
             }
             R.id.btn_remove -> {
-                // 데이터 변경
-                todoModel.delete(todoModel.getTodo(dataList[mPosition].content))
-                dataList.removeAt(mPosition)
+                // 데이터 삭제
+                todoModel.removeTodo(mPosition)
                 mAdapter.notifyDataSetChanged()
                 true
             }
@@ -112,16 +108,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,
 
         // controller
         alertDialog.setPositiveButton("확인") { _, _ ->
-            newTodo = Todo(et.text.toString()).apply {
-                id = todoModel.getTodo(dataList[mPosition].content).id
-            }
-
-            // 데이터 변경
-            todoModel.update(newTodo)
-            dataList[mPosition] = newTodo
+            // 데이터 수정
+            todoModel.updateTodo(et.text.toString(), mPosition)
             mAdapter.notifyDataSetChanged()
-        }
-        alertDialog.show()
+        }.show()
     }
 
 
