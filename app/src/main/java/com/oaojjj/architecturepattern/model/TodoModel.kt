@@ -5,11 +5,6 @@ import androidx.room.Room
 
 // model
 class TodoModel(mContext: Context) {
-    private val db: TodoDatabase = Room.databaseBuilder(
-        mContext,
-        TodoDatabase::class.java,
-        "TodoDatabase"
-    ).allowMainThreadQueries().build()
-
+    private val db: TodoDatabase = TodoDatabase.getInstance(mContext)
     fun db(): TodoDatabase = db
 }
