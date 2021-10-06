@@ -21,7 +21,6 @@ import com.oaojjj.architecturepattern.model.TodoModel
 // view는 xml_layout 자체이다.
 class MainActivity : AppCompatActivity(), View.OnClickListener, PopupMenu.OnMenuItemClickListener,
     OnTodoClickListener {
-    private val TAG: String? = "test"
     private lateinit var activityMainBinding: ActivityMainBinding
     private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
 
@@ -50,11 +49,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, PopupMenu.OnMenu
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
                 if (it.resultCode == RESULT_OK) {
                     val contents = it.data?.getStringExtra("todo")
-                    if (contents != null) {
-                        // model에 data 추가를 요청하고 ui 갱신
-                        todoModel.addTodo(contents)
-                        mAdapter.notifyItemInserted(todoModel.size())
-                    }
+                    addTodo(contents)
                 }
             }
 
@@ -72,56 +67,88 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, PopupMenu.OnMenu
         super.onCreateContextMenu(menu, v, menuInfo)
     }
 
-    // 데이터 추가 -> 사용자 이벤트 발생
-    override fun onClick(v: View?) {
-        val intent = Intent(this, AddTodoActivity::class.java)
-        activityResultLauncher.launch(intent)
-        overridePendingTransition(0, 0)
+    // 팝업 메뉴 생성
+    private fun buildPopupMenu(view: View?) {
+        val popupMenu =
+            PopupMenu(this, view).apply { setOnMenuItemClickListener(this@MainActivity) }
+        menuInflater.inflate(R.menu.menu_main, popupMenu.menu)
+        popupMenu.show()
+    }
+
+    // view, controller
+    // 수정버튼 클릭 시 다이얼로그 생성
+    private fun buildAlertDialog() {
+        val et = EditText(this)
+        AlertDialog.Builder(this).apply {
+            setTitle("수정")
+            setMessage("수정할 내용 입력")
+            setView(et)
+            setPositiveButton("확인") { _, _ -> updateTodo(et.text.toString()) }
+        }.show()
     }
 
     // controller
-    // 데이터 수정, 삭제 -> 사용자 이벤트 발생
+    // 사용자 이벤트 발생
     override fun onMenuItemClick(item: MenuItem?): Boolean {
         return when (item?.itemId) {
             R.id.btn_update -> {
-                showAlertDialog()
+                buildAlertDialog()
                 true
             }
             R.id.btn_remove -> {
-                // 데이터 삭제
-                todoModel.removeTodo()
-                mAdapter.notifyDataSetChanged()
+                removeTodo()
                 true
             }
             else -> false
         }
     }
 
-    // view, controller
-    // 수정버튼 클릭 시 다이얼로그 생성
-    private fun showAlertDialog() {
-        // view
-        val et = EditText(this)
-        val alertDialog = AlertDialog.Builder(this).apply {
-            setTitle("수정")
-            setMessage("수정할 내용 입력")
-            setView(et)
+    override fun onClick(v: View?) {
+        activityResultLauncher.launch(Intent(this, AddTodoActivity::class.java))
+        overridePendingTransition(0, 0)
+    }
+
+    override fun onTodoLongClick(view: View?, position: Int) {
+        todoModel.setPosition(position)
+        buildPopupMenu(view)
+    }
+
+    override fun onTodoCheckClick(position: Int, checked: Boolean) {
+        updateCheckedTodo(position, checked)
+    }
+
+
+    /**
+     * 사용자 이벤트 발생 하고 호출되는 메소드(callback)
+     * add, remove, update ...등
+     * controller -> Model 에 데이터 추가 요청
+     * Model 에서 데이터를 조작 후 View 는 UI만 갱신
+     */
+
+    // 데이터 추가
+    private fun addTodo(contents: String?) {
+        if (contents != null) {
+            todoModel.addTodo(contents)
+            mAdapter.notifyItemInserted(todoModel.size())
         }
-
-        // controller
-        alertDialog.setPositiveButton("확인") { _, _ ->
-            // 데이터 수정
-            todoModel.updateTodo(et.text.toString())
-            mAdapter.notifyDataSetChanged()
-        }.show()
     }
 
-    override fun onTodoCheckClickListener(position: Int, checked: Boolean) {
+    // 데이터 수정
+    private fun updateTodo(contents: String) {
+        todoModel.updateTodo(contents)
+        mAdapter.notifyItemChanged(todoModel.getPosition())
+    }
+
+    // 데이터 삭제
+    private fun removeTodo() {
+        todoModel.removeTodo()
+        mAdapter.notifyItemRemoved(todoModel.getPosition())
+    }
+
+    // 데이터 수정(체크 유무)
+    private fun updateCheckedTodo(position: Int, checked: Boolean) {
         todoModel.updateChecked(position, checked)
-    }
-
-    override fun onTodoLongClickListener() {
-        TODO("Not yet implemented")
+        mAdapter.notifyItemChanged(position)
     }
 
 }

@@ -15,13 +15,13 @@
         android:padding="16dp"
         android:hint="enter your to do."
         android:inputType="textMultiLine"
-        app:layout_constraintBottom_toTopOf="@+id/add_todo"
+        app:layout_constraintBottom_toTopOf="@+id/bt_add_todo"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/add_todo"
+        android:id="@+id/bt_add_todo"
         android:layout_width="128dp"
         android:layout_height="wrap_content"
         android:gravity="center"

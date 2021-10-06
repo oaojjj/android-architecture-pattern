@@ -1,7 +1,6 @@
 package com.oaojjj.architecturepattern.adapter
 
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,10 +12,13 @@ import com.oaojjj.architecturepattern.listener.OnTodoClickListener
 import com.oaojjj.architecturepattern.model.Todo
 
 class TodoAdapter(private val mContext: Context, private val todoList: MutableList<Todo>) :
-    RecyclerView.Adapter<TodoAdapter.TodoViewHolder>() {
+    RecyclerView.Adapter<TodoAdapter.TodoViewHolder>(){
 
-    private val TAG: String? = "test2"
-    private lateinit var mListener: OnTodoClickListener
+    private lateinit var mTodoListener: OnTodoClickListener
+
+    fun setOnTodoClickListener(listener: OnTodoClickListener) {
+        mTodoListener = listener
+    }
 
     inner class TodoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val cbTodo: CheckBox = itemView.findViewById(R.id.cb_todo)
@@ -26,8 +28,7 @@ class TodoAdapter(private val mContext: Context, private val todoList: MutableLi
             tvContents.text = item.content
 
             cbTodo.setOnClickListener {
-                Log.d(TAG, "checkbox")
-                mListener.onTodoCheckClickListener(this.adapterPosition, cbTodo.isChecked)
+                mTodoListener.onTodoCheckClick(adapterPosition, cbTodo.isChecked)
             }
         }
 
@@ -39,12 +40,14 @@ class TodoAdapter(private val mContext: Context, private val todoList: MutableLi
     }
 
     override fun onBindViewHolder(holder: TodoViewHolder, position: Int) {
+        holder.itemView.setOnLongClickListener {
+            mTodoListener.onTodoLongClick(it, position)
+            true
+        }
         holder.bind(todoList[position])
     }
 
     override fun getItemCount(): Int = todoList.size
 
-    fun setOnTodoClickListener(listener: OnTodoClickListener) {
-        mListener = listener
-    }
+
 }
