@@ -29,8 +29,12 @@ class TodoModel(mContext: Context) {
     fun getPosition(): Int = mPosition
 
     fun addTodo(newContents: String) {
-        mDataList.add(Todo(newContents))
-        db.insert(mDataList.last())
+        val newTodo: Todo = Todo(newContents).apply {
+            id = if (mDataList.isEmpty()) 1 else mDataList.last().id?.plus(1)
+        }
+
+        db.insert(newTodo)
+        mDataList.add(newTodo)
     }
 
     fun removeTodo() {

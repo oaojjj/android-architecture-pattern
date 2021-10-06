@@ -109,6 +109,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, PopupMenu.OnMenu
     }
 
     override fun onTodoLongClick(view: View?, position: Int) {
+        Log.d("main_test", "onTodoLongClick: $position")
         todoModel.setPosition(position)
         buildPopupMenu(view)
     }
@@ -143,6 +144,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, PopupMenu.OnMenu
     private fun removeTodo() {
         todoModel.removeTodo()
         mAdapter.notifyItemRemoved(todoModel.getPosition())
+        mAdapter.notifyItemRangeChanged(todoModel.getPosition(), todoModel.size())
     }
 
     // 데이터 수정(체크 유무)
