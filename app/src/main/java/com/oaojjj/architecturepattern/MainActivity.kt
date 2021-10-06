@@ -1,47 +1,68 @@
 package com.oaojjj.architecturepattern
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.ContextMenu
 import android.view.MenuItem
 import android.view.View
 import android.widget.*
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
-import com.oaojjj.architecturepattern.model.Todo
-import com.oaojjj.architecturepattern.model.TodoDao
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.oaojjj.architecturepattern.adapter.TodoAdapter
+import com.oaojjj.architecturepattern.databinding.ActivityMainBinding
+import com.oaojjj.architecturepattern.listener.OnTodoClickListener
 import com.oaojjj.architecturepattern.model.TodoModel
-import kotlinx.android.synthetic.main.activity_main.*
 
 // 안드로이드에서 MVC 구조는 activity가 controller와 view의 역할을 수행한다.
 // view는 xml_layout 자체이다.
-class MainActivity : AppCompatActivity(), View.OnClickListener,
-    AdapterView.OnItemLongClickListener, PopupMenu.OnMenuItemClickListener {
-    private lateinit var todoModel: TodoDao
-    private lateinit var dataList: MutableList<Todo>
-    private lateinit var mAdapter: ArrayAdapter<Todo>
-    private lateinit var newTodo: Todo
-    private var mPosition: Int = 0
+class MainActivity : AppCompatActivity(), View.OnClickListener, PopupMenu.OnMenuItemClickListener,
+    OnTodoClickListener {
+    private val TAG: String? = "test"
+    private lateinit var activityMainBinding: ActivityMainBinding
+    private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
+
+    private lateinit var todoModel: TodoModel
+    private lateinit var mAdapter: TodoAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        activityMainBinding = ActivityMainBinding.inflate(layoutInflater)
 
         // view, controller
-        setContentView(R.layout.activity_main)
-        btn_add.setOnClickListener(this)
-        lv_list.onItemLongClickListener = this
+        setContentView(activityMainBinding.root)
+        activityMainBinding.fabAdd.setOnClickListener(this)
 
         // model
-        todoModel = TodoModel(this).db().todoDao()
+        todoModel = TodoModel(this)
 
         // init data, adapter
-        dataList = todoModel.getAll()
-        mAdapter = ArrayAdapter(this@MainActivity, android.R.layout.simple_list_item_1, dataList)
-        lv_list.adapter = mAdapter
+        mAdapter = TodoAdapter(this, todoModel.getDataList())
+            .apply { setOnTodoClickListener(this@MainActivity) }
+        activityMainBinding.rvTodo.adapter = mAdapter
+        activityMainBinding.rvTodo.layoutManager = LinearLayoutManager(this)
+
+        // instead startActivityResult
+        activityResultLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+                if (it.resultCode == RESULT_OK) {
+                    val contents = it.data?.getStringExtra("todo")
+                    if (contents != null) {
+                        // model에 data 추가를 요청하고 ui 갱신
+                        todoModel.addTodo(contents)
+                        mAdapter.notifyItemInserted(todoModel.size())
+                    }
+                }
+            }
 
         // to use the menu
-        registerForContextMenu(lv_list)
+        registerForContextMenu(activityMainBinding.rvTodo)
     }
 
+    // view
     override fun onCreateContextMenu(
         menu: ContextMenu?,
         v: View?,
@@ -53,34 +74,13 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,
 
     // 데이터 추가 -> 사용자 이벤트 발생
     override fun onClick(v: View?) {
-        newTodo = Todo(et_content.text.toString()) // 새로운 데이터
-
-        // model에 data를 추가를 요청하고 ui를 다시 갱신
-        // 데이터 변경
-        todoModel.insert(newTodo)
-        dataList.add(newTodo)
-        mAdapter.notifyDataSetChanged()
-
-        et_content.setText("")
-    }
-
-    // view, controller -> show popup menu
-    override fun onItemLongClick(
-        adapterView: AdapterView<*>?,
-        view: View?,
-        position: Int,
-        id: Long
-    ): Boolean {
-        val popupMenu =
-            PopupMenu(this, view).apply { setOnMenuItemClickListener(this@MainActivity) }
-        menuInflater.inflate(R.menu.menu_main, popupMenu.menu)
-        popupMenu.show()
-
-        mPosition = position
-        return true
+        val intent = Intent(this, AddTodoActivity::class.java)
+        activityResultLauncher.launch(intent)
+        overridePendingTransition(0, 0)
     }
 
     // controller
+    // 데이터 수정, 삭제 -> 사용자 이벤트 발생
     override fun onMenuItemClick(item: MenuItem?): Boolean {
         return when (item?.itemId) {
             R.id.btn_update -> {
@@ -88,9 +88,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,
                 true
             }
             R.id.btn_remove -> {
-                // 데이터 변경
-                todoModel.delete(todoModel.getTodo(dataList[mPosition].content))
-                dataList.removeAt(mPosition)
+                // 데이터 삭제
+                todoModel.removeTodo()
                 mAdapter.notifyDataSetChanged()
                 true
             }
@@ -111,17 +110,18 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,
 
         // controller
         alertDialog.setPositiveButton("확인") { _, _ ->
-            newTodo = Todo(et.text.toString()).apply {
-                id = todoModel.getTodo(dataList[mPosition].content).id
-            }
-
-            // 데이터 변경
-            todoModel.update(newTodo)
-            dataList[mPosition] = newTodo
+            // 데이터 수정
+            todoModel.updateTodo(et.text.toString())
             mAdapter.notifyDataSetChanged()
-        }
-        alertDialog.show()
+        }.show()
     }
 
+    override fun onTodoCheckClickListener(position: Int, checked: Boolean) {
+        todoModel.updateChecked(position, checked)
+    }
+
+    override fun onTodoLongClickListener() {
+        TODO("Not yet implemented")
+    }
 
 }
