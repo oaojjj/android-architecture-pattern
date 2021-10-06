@@ -32,11 +32,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,
         todoModel = TodoModel(this)
 
         // init data, adapter
-        lv_list.adapter = ArrayAdapter(
-            this@MainActivity,
-            android.R.layout.simple_list_item_1,
-            todoModel.getDataList()
-        ).apply { mAdapter = this }
+        mAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, todoModel.getDataList())
+        lv_list.adapter = mAdapter
 
         // to use the menu
         registerForContextMenu(lv_list)
@@ -113,6 +110,5 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,
             mAdapter.notifyDataSetChanged()
         }.show()
     }
-
 
 }
