@@ -8,16 +8,16 @@ import android.widget.CheckBox
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.oaojjj.architecturepattern.R
-import com.oaojjj.architecturepattern.listener.OnTodoClickListener
+import com.oaojjj.architecturepattern.listener.OnTodoCheckBoxClickListener
 import com.oaojjj.architecturepattern.model.Todo
 
 class TodoAdapter(private val mContext: Context, private val todoList: MutableList<Todo>) :
-    RecyclerView.Adapter<TodoAdapter.TodoViewHolder>(){
+    RecyclerView.Adapter<TodoAdapter.TodoViewHolder>() {
 
-    private lateinit var mTodoListener: OnTodoClickListener
-
-    fun setOnTodoClickListener(listener: OnTodoClickListener) {
-        mTodoListener = listener
+    // listener
+    private lateinit var mTodoCheckBoxListener: OnTodoCheckBoxClickListener
+    fun setOnTodoCheckBoxListener(listener: OnTodoCheckBoxClickListener) {
+        mTodoCheckBoxListener = listener
     }
 
     inner class TodoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -28,7 +28,7 @@ class TodoAdapter(private val mContext: Context, private val todoList: MutableLi
             tvContents.text = item.content
 
             cbTodo.setOnClickListener {
-                mTodoListener.onTodoCheckClick(adapterPosition, cbTodo.isChecked)
+                mTodoCheckBoxListener.onTodoCheckBoxClick(adapterPosition, cbTodo.isChecked)
             }
         }
 
@@ -40,10 +40,6 @@ class TodoAdapter(private val mContext: Context, private val todoList: MutableLi
     }
 
     override fun onBindViewHolder(holder: TodoViewHolder, position: Int) {
-        holder.itemView.setOnLongClickListener {
-            mTodoListener.onTodoLongClick(it, position)
-            true
-        }
         holder.bind(todoList[position])
     }
 

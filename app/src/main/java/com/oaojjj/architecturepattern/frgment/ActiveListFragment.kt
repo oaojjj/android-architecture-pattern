@@ -1,7 +1,7 @@
 package com.oaojjj.architecturepattern.frgment
 
+import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -10,19 +10,27 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.oaojjj.architecturepattern.adapter.TodoAdapter
 import com.oaojjj.architecturepattern.databinding.FragmentActiveListBinding
-import com.oaojjj.architecturepattern.listener.OnTodoClickListener
 import com.oaojjj.architecturepattern.model.TodoModel
-import androidx.recyclerview.widget.RecyclerView
 
-import androidx.annotation.NonNull
-import androidx.recyclerview.widget.ItemTouchHelper.LEFT
+import com.oaojjj.architecturepattern.controller.SwipeController
+import com.oaojjj.architecturepattern.listener.OnTodoCheckBoxClickListener
 
 
-class ActiveListFragment : Fragment(), OnTodoClickListener {
+class ActiveListFragment : Fragment(), OnTodoCheckBoxClickListener {
     private lateinit var binding: FragmentActiveListBinding
+
+    // itemTouchHelper
+    private lateinit var itemTouchHelper: ItemTouchHelper
+    private val swipeController: SwipeController = SwipeController()
 
     private lateinit var todoModel: TodoModel
     private lateinit var mAdapter: TodoAdapter
+
+    override fun onAttach(context: Context) {
+        // model
+        todoModel = TodoModel(context)
+        super.onAttach(context)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -35,26 +43,18 @@ class ActiveListFragment : Fragment(), OnTodoClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // model
-        todoModel = TodoModel(requireContext())
-
         // init data, adapter
-        mAdapter = TodoAdapter(requireContext(), todoModel.getDataList())
-            .apply { setOnTodoClickListener(this@ActiveListFragment) }
+        mAdapter =
+            TodoAdapter(requireContext(), todoModel.getDataList())
+                .apply { setOnTodoCheckBoxListener(this@ActiveListFragment) }
         binding.rvTodo.adapter = mAdapter
         binding.rvTodo.layoutManager = LinearLayoutManager(requireContext())
 
+        // attach itemTouchHelper to recyclerview
+        itemTouchHelper = ItemTouchHelper(swipeController)
+        itemTouchHelper.attachToRecyclerView(binding.rvTodo)
 
     }
-
-    override fun onTodoCheckClick(position: Int, checked: Boolean) {
-        updateCheckedTodo(position, checked)
-    }
-
-    override fun onTodoLongClick(view: View?, position: Int) {
-        todoModel.setPosition(position)
-    }
-
 
     /**
      * 사용자 이벤트 발생 하고 호출되는 메소드(callback)
@@ -64,7 +64,7 @@ class ActiveListFragment : Fragment(), OnTodoClickListener {
      */
 
     // 데이터 추가
-    private fun addTodo(contents: String?) {
+    fun onAddTodo(contents: String?) {
         if (contents != null) {
             todoModel.addTodo(contents)
             mAdapter.notifyItemInserted(todoModel.size())
@@ -72,21 +72,25 @@ class ActiveListFragment : Fragment(), OnTodoClickListener {
     }
 
     // 데이터 수정
-    private fun updateTodo(contents: String) {
+    fun onUpdateTodo(contents: String) {
         todoModel.updateTodo(contents)
         mAdapter.notifyItemChanged(todoModel.getPosition())
     }
 
     // 데이터 삭제
-    private fun removeTodo() {
+    fun onRemoveTodo() {
         todoModel.removeTodo()
         mAdapter.notifyItemRemoved(todoModel.getPosition())
         mAdapter.notifyItemRangeChanged(todoModel.getPosition(), todoModel.size())
     }
 
     // 데이터 수정(체크 유무)
-    private fun updateCheckedTodo(position: Int, checked: Boolean) {
+    private fun onUpdateCheckedTodo(position: Int, checked: Boolean) {
         todoModel.updateChecked(position, checked)
         mAdapter.notifyItemChanged(position)
+    }
+
+    override fun onTodoCheckBoxClick(position: Int, checked: Boolean) {
+        onUpdateCheckedTodo(position, checked)
     }
 }
