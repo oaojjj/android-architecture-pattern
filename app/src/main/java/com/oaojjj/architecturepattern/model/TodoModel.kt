@@ -5,10 +5,8 @@ import android.util.Log
 
 // model
 class TodoModel(mContext: Context) {
-    companion object {
-        private lateinit var mDataList: MutableList<Todo>
-        private var mPosition: Int = 0
-    }
+    private var mDataList: MutableList<Todo>
+    private var mPosition: Int = 0
 
     private val db: TodoDao = TodoDatabase.getInstance(mContext).todoDao()
 
@@ -24,9 +22,19 @@ class TodoModel(mContext: Context) {
         return mDataList
     }
 
+    fun setPosition(position: Int) {
+        mPosition = position
+    }
+
+    fun getPosition(): Int = mPosition
+
     fun addTodo(newContents: String) {
-        mDataList.add(Todo(newContents))
-        db.insert(mDataList.last())
+        val newTodo: Todo = Todo(newContents).apply {
+            id = if (mDataList.isEmpty()) 1 else mDataList.last().id?.plus(1)
+        }
+
+        db.insert(newTodo)
+        mDataList.add(newTodo)
     }
 
     fun removeTodo() {
@@ -39,16 +47,9 @@ class TodoModel(mContext: Context) {
         db.update(mDataList[mPosition])
     }
 
-    fun setPosition(position: Int) {
-        mPosition = position
-    }
-
-    fun getPosition(): Int = mPosition
-
     fun updateChecked(position: Int, checked: Boolean) {
-        Log.d("test3", "updateChecked: $position,$checked")
         mDataList[position].checked = checked
-        db.updateChecked(position + 1, checked)
+        db.updateChecked(mDataList[position].id, checked)
     }
 
     fun size(): Int = mDataList.size
