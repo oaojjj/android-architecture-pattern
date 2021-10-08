@@ -15,14 +15,17 @@
         android:id="@+id/bab_main"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom" />
+        android:layout_gravity="bottom"
+        android:backgroundTint="@color/colorPrimary" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_main"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/add"
-        app:backgroundTint="@color/colorPrimaryDark"
+        app:backgroundTint="@color/colorFab"
+        app:fabCustomSize="64dp"
         app:layout_anchor="@id/bab_main"
+        app:maxImageSize="40dp"
         app:tint="@null" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

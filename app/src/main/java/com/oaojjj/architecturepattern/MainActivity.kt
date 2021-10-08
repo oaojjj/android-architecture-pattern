@@ -1,6 +1,8 @@
 package com.oaojjj.architecturepattern
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -74,11 +76,18 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     /**
-     *  change bottom animation(fab, bottomAbbBar)
+     *  change bottom fab position(fab, bottomAbbBar)
      */
     private fun changeBottomAnimation(ResId: Int, fabAlignmentMode: Int) {
+        Handler(Looper.getMainLooper()).apply {
+            postDelayed({
+                binding.fabMain.setImageDrawable(
+                    ContextCompat.getDrawable(this@MainActivity, ResId)
+                )
+            }, 300)
+        }
+
         binding.babMain.fabAlignmentMode = fabAlignmentMode
-        binding.fabMain.setImageDrawable(ContextCompat.getDrawable(this, ResId))
     }
 
     override fun onBackPressed() {

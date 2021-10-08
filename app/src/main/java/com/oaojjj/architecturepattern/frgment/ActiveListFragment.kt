@@ -86,6 +86,11 @@ class ActiveListFragment : Fragment(), OnTodoCheckBoxClickListener {
 
     }
 
+    override fun onResume() {
+        requireActivity().title = "할 일 목록"
+        super.onResume()
+    }
+
     /**
      * 사용자 이벤트 발생 하고 호출되는 메소드(callback)
      * add, remove, update ...등
