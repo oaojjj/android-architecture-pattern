@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="oval">
+            <size
+                android:width="@dimen/check_box_size"
+                android:height="@dimen/check_box_size" />
+            <solid android:color="#4CAF50" />
+        </shape>
+    </item>
+    <!--<item
+        android:bottom="3dp"
+        android:left="3dp"
+        android:right="3dp"
+        android:top="3dp">
+        <shape android:shape="oval">
+            <size
+                android:width="@dimen/check_box_size"
+                android:height="@dimen/check_box_size" />
+            <solid android:color="#4CAF50" />
+        </shape>
+    </item>-->
+    <item
+        android:bottom="2dp"
+        android:drawable="@drawable/custom_check"
+        android:left="2dp"
+        android:right="2dp"
+        android:top="2dp" />
+</layer-list>
