@@ -84,7 +84,6 @@ class ActiveListFragment : Fragment(), OnTodoCheckBoxClickListener {
             })
         itemTouchHelper.attachToRecyclerView(binding.rvTodo)
 
-
     }
 
     /**

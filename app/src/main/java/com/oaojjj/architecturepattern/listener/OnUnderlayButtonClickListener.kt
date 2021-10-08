@@ -1,5 +1,5 @@
 package com.oaojjj.architecturepattern.listener
 
-interface UnderlayButtonClickListener {
+interface OnUnderlayButtonClickListener {
     fun onUnderlayButtonClick(pos: Int)
 }
