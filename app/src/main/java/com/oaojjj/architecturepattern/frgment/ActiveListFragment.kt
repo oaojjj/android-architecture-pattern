@@ -1,18 +1,23 @@
 package com.oaojjj.architecturepattern.frgment
 
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.oaojjj.architecturepattern.R
 import com.oaojjj.architecturepattern.adapter.TodoAdapter
 import com.oaojjj.architecturepattern.databinding.FragmentActiveListBinding
 import com.oaojjj.architecturepattern.model.TodoModel
 
 import com.oaojjj.architecturepattern.controller.SwipeController
+import com.oaojjj.architecturepattern.customview.UnderlayButton
 import com.oaojjj.architecturepattern.listener.OnTodoCheckBoxClickListener
 
 
@@ -21,7 +26,6 @@ class ActiveListFragment : Fragment(), OnTodoCheckBoxClickListener {
 
     // itemTouchHelper
     private lateinit var itemTouchHelper: ItemTouchHelper
-    private val swipeController: SwipeController = SwipeController()
 
     private lateinit var todoModel: TodoModel
     private lateinit var mAdapter: TodoAdapter
@@ -51,8 +55,35 @@ class ActiveListFragment : Fragment(), OnTodoCheckBoxClickListener {
         binding.rvTodo.layoutManager = LinearLayoutManager(requireContext())
 
         // attach itemTouchHelper to recyclerview
-        itemTouchHelper = ItemTouchHelper(swipeController)
+        itemTouchHelper =
+            ItemTouchHelper(object : SwipeController(requireContext(), binding.rvTodo) {
+                override fun instantiateUnderlayButton(
+                    vh: RecyclerView.ViewHolder,
+                    buttons: MutableList<UnderlayButton>
+                ) {
+                    buttons.add(
+                        UnderlayButton(
+                            text = "삭제",
+                            background = ContextCompat.getColor(
+                                requireContext(),
+                                R.color.colorDelete
+                            ),
+                        )
+                    )
+                    buttons.add(
+                        UnderlayButton(
+                            text = "수정",
+                            background = ContextCompat.getColor(
+                                requireContext(),
+                                R.color.colorEdit
+                            ),
+                        )
+                    )
+                }
+
+            })
         itemTouchHelper.attachToRecyclerView(binding.rvTodo)
+
 
     }
 
