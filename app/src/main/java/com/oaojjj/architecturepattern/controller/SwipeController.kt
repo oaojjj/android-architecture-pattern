@@ -33,13 +33,13 @@ abstract class SwipeController(context: Context, var recyclerView: RecyclerView)
 
     /**
      * GestureDetector
-     * 사용자 터치 감지
+     * rect 사용자 터치 감지
      */
     private lateinit var gestureDetector: GestureDetector
     private val gestureListener: GestureDetector.OnGestureListener =
         object : GestureDetector.SimpleOnGestureListener() {
             override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
-                Log.d(TAG, "onSingleTapConfirmed: ")
+                Log.d(TAG, "gestureListener_test: ${e?.action}, x:${e?.x}, y:${e?.y}")
                 //for (button in buttons)
                 //if (button.onClick(e!!.x, e.y)) break
                 return true
@@ -50,17 +50,26 @@ abstract class SwipeController(context: Context, var recyclerView: RecyclerView)
      * RecyclerView TouchListener
      */
     private val onTouchListener = OnTouchListener { _, event ->
-        Log.d(TAG, "onTouchListener: ")
+        Log.d(TAG, "onTouchListener_test: $swipedPos")
         if (swipedPos < 0) return@OnTouchListener false
-        val point = Point(event.rawX.toInt(), event.rawY.toInt())
-        val rect = Rect()
 
+        // 현재 touch가 발생한 위치
+        val point = Point(event.rawX.toInt(), event.rawY.toInt())
+
+
+        val rect = Rect()
+        // 뷰가 보이면 true 반환 + rect 위치 추적하는듯? -> rect 포지션을 위해 호출하는 듯
         recyclerView.findViewHolderForAdapterPosition(swipedPos)
             ?.itemView?.getGlobalVisibleRect(rect)
+
+        Log.d("onTouchListener", "내가 찍은 포지션: $point")
+        Log.d("onTouchListener", "rect 포지션: $rect")
+
         if (event.action == MotionEvent.ACTION_DOWN
             || event.action == MotionEvent.ACTION_UP
             || event.action == MotionEvent.ACTION_MOVE
         ) {
+            // 해당하는 pos에 touch이벤트 발생
             if (rect.top < point.y && rect.bottom > point.y) gestureDetector.onTouchEvent(event)
             else {
                 recoverQueue.add(swipedPos)
@@ -100,7 +109,6 @@ abstract class SwipeController(context: Context, var recyclerView: RecyclerView)
         viewHolder: RecyclerView.ViewHolder,
         target: RecyclerView.ViewHolder
     ): Boolean {
-        Log.d(TAG, "onMove")
         return false
     }
 
@@ -145,19 +153,10 @@ abstract class SwipeController(context: Context, var recyclerView: RecyclerView)
         var translationX = dX
         val itemView = vh.itemView
 
-        Log.d(TAG, "onChildDraw: pos_$pos")
-        if (pos < 0) {
-            Log.d(TAG, "onChildDraw: swipedPos_$swipedPos")
-            swipedPos = pos
-            return
-        }
-
         if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
-            Log.d(TAG, "onChildDraw: dx_$dX")
             if (dX < 0) {
                 var buffer: MutableList<UnderlayButton> = mutableListOf()
 
-                Log.d(TAG, "onChildDraw: buffer_$buffer")
                 if (!buttonsBuffer.containsKey(pos)) {
                     instantiateUnderlayButton(vh, buffer)
                     buttonsBuffer[pos] = buffer
@@ -172,13 +171,11 @@ abstract class SwipeController(context: Context, var recyclerView: RecyclerView)
     }
 
     private fun drawButtons(c: Canvas, v: View, buffer: List<UnderlayButton>, pos: Int, dX: Float) {
-        Log.d(TAG, "drawButtons: $dX, buffer_$buffer")
         var right = v.right.toFloat()
         val dButtonWidth = (-1) * dX / buffer.size
 
         for (button in buffer) {
             val left = right - dButtonWidth
-            Log.d(TAG, "drawButtons: left_$left, right_$right")
             button.onDraw(c, RectF(left, v.top.toFloat(), right, v.bottom.toFloat()), pos)
             right = left
         }
@@ -193,6 +190,5 @@ abstract class SwipeController(context: Context, var recyclerView: RecyclerView)
             }
         }
     }
-
 
 }

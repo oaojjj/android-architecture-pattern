@@ -1,8 +1,8 @@
 package com.oaojjj.architecturepattern.frgment
 
 import android.content.Context
-import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -27,12 +27,11 @@ class ActiveListFragment : Fragment(), OnTodoCheckBoxClickListener {
     // itemTouchHelper
     private lateinit var itemTouchHelper: ItemTouchHelper
 
-    private lateinit var todoModel: TodoModel
     private lateinit var mAdapter: TodoAdapter
 
     override fun onAttach(context: Context) {
         // model
-        todoModel = TodoModel(context)
+        TodoModel.setContext(context)
         super.onAttach(context)
     }
 
@@ -40,16 +39,17 @@ class ActiveListFragment : Fragment(), OnTodoCheckBoxClickListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        Log.d("ActiveListFragment_TAG", "onCreateView: ")
         binding = FragmentActiveListBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        Log.d("ActiveListFragment_TAG", "onViewCreated: ")
         // init data, adapter
         mAdapter =
-            TodoAdapter(requireContext(), todoModel.getDataList())
+            TodoAdapter(requireContext(), TodoModel.getDataList())
                 .apply { setOnTodoCheckBoxListener(this@ActiveListFragment) }
         binding.rvTodo.adapter = mAdapter
         binding.rvTodo.layoutManager = LinearLayoutManager(requireContext())
@@ -86,9 +86,30 @@ class ActiveListFragment : Fragment(), OnTodoCheckBoxClickListener {
 
     }
 
+    override fun onStart() {
+        Log.d("ActiveListFragment_TAG", "onStart: ")
+        super.onStart()
+    }
+
     override fun onResume() {
-        requireActivity().title = "할 일 목록"
+        Log.d("ActiveListFragment_TAG", "onResume: ")
+        requireActivity().title = getString(R.string.todo_list)
         super.onResume()
+    }
+
+    override fun onStop() {
+        Log.d("ActiveListFragment_TAG", "onStop: ")
+        super.onStop()
+    }
+
+    override fun onPause() {
+        Log.d("ActiveListFragment_TAG", "onPause: ")
+        super.onPause()
+    }
+
+    override fun onDestroyView() {
+        Log.d("ActiveListFragment_TAG", "onDestroyView: ")
+        super.onDestroyView()
     }
 
     /**
@@ -98,30 +119,30 @@ class ActiveListFragment : Fragment(), OnTodoCheckBoxClickListener {
      * Model 에서 데이터를 조작 후 View 는 UI만 갱신
      */
 
-    // 데이터 추가
-    fun onAddTodo(contents: String?) {
-        if (contents != null) {
-            todoModel.addTodo(contents)
-            mAdapter.notifyItemInserted(todoModel.size())
-        }
-    }
+//    // 데이터 추가
+//    private fun onAddTodo(contents: String?) {
+//        if (contents != null) {
+//            TodoModel.addTodo(contents)
+//            mAdapter.notifyItemInserted(TodoModel.size())
+//        }
+//    }
 
     // 데이터 수정
-    fun onUpdateTodo(contents: String) {
-        todoModel.updateTodo(contents)
-        mAdapter.notifyItemChanged(todoModel.getPosition())
+    private fun onUpdateTodo(contents: String) {
+        TodoModel.updateTodo(contents)
+        mAdapter.notifyItemChanged(TodoModel.getPosition())
     }
 
     // 데이터 삭제
-    fun onRemoveTodo() {
-        todoModel.removeTodo()
-        mAdapter.notifyItemRemoved(todoModel.getPosition())
-        mAdapter.notifyItemRangeChanged(todoModel.getPosition(), todoModel.size())
+    private fun onRemoveTodo() {
+        TodoModel.removeTodo()
+        mAdapter.notifyItemRemoved(TodoModel.getPosition())
+        mAdapter.notifyItemRangeChanged(TodoModel.getPosition(), TodoModel.size())
     }
 
     // 데이터 수정(체크 유무)
     private fun onUpdateCheckedTodo(position: Int, checked: Boolean) {
-        todoModel.updateChecked(position, checked)
+        TodoModel.updateChecked(position, checked)
         mAdapter.notifyItemChanged(position)
     }
 

@@ -49,15 +49,13 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             true -> onAddTodo()
             false -> onFinishedAddTodo()
         }
-
-        fabFlag = !fabFlag
     }
 
     private fun onAddTodo() {
         addTodoFragment = AddTodoFragment().apply { finishedAddTodoListener = this }
         supportFragmentManager.beginTransaction()
             .addToBackStack("addTodoFragment")
-            .replace(R.id.fl_container_main, AddTodoFragment())
+            .replace(R.id.fl_container_main, addTodoFragment)
             .commit()
 
         Log.d("main", "onAddTodo: ${supportFragmentManager.backStackEntryCount}")
@@ -71,7 +69,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             FragmentManager.POP_BACK_STACK_INCLUSIVE
         )
         Log.d("main", "finishedAddTodo: ${supportFragmentManager.backStackEntryCount}")
-
         changeBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER)
     }
 
@@ -79,6 +76,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
      *  change bottom fab position(fab, bottomAbbBar)
      */
     private fun changeBottomAnimation(ResId: Int, fabAlignmentMode: Int) {
+        fabFlag = !fabFlag
         Handler(Looper.getMainLooper()).apply {
             postDelayed({
                 binding.fabMain.setImageDrawable(

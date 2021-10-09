@@ -4,6 +4,7 @@ import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.text.TextPaint
 import android.util.Log
+import com.oaojjj.architecturepattern.listener.OnUnderlayButtonClickListener
 
 
 class UnderlayButton() {
@@ -22,18 +23,21 @@ class UnderlayButton() {
     private lateinit var paint: Paint
     private lateinit var textPaint: TextPaint
 
-    private lateinit var mClickRegion: RectF
+    private var mClickRegion: RectF? = null
+    private var mListener: OnUnderlayButtonClickListener? = null
 
     constructor(
         text: String,
         imageResId: Drawable? = null,
         background: Int,
         textColor: Int = Color.WHITE,
+        listener: OnUnderlayButtonClickListener? = null
     ) : this() {
         mText = text
         mImageResId = imageResId
         mBackground = background
         mTextColor = textColor
+        mListener = listener
 
         paint = Paint().apply { color = mBackground }
         textPaint = TextPaint().apply {
@@ -41,7 +45,6 @@ class UnderlayButton() {
             textSize = mTextSize
             textAlign = Paint.Align.LEFT
             getTextBounds(mText, 0, mText.length, r)
-
         }
     }
 
@@ -83,6 +86,14 @@ class UnderlayButton() {
                 ((rectF.bottom - ((rectF.height() / 10f))).toInt())
             )
         }?.draw(canvas)
+    }
+
+    fun onClick(x: Float, y: Float): Boolean {
+        if (mClickRegion != null && mClickRegion?.contains(x, y) == true) {
+            mListener?.onUnderlayButtonClick(mPos)
+            return true
+        }
+        return false
     }
 
 }
