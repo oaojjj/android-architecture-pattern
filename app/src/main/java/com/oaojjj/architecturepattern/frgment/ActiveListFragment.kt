@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -51,8 +52,11 @@ class ActiveListFragment : Fragment(), OnTodoCheckBoxClickListener {
         mAdapter =
             TodoAdapter(requireContext(), TodoModel.getDataList())
                 .apply { setOnTodoCheckBoxListener(this@ActiveListFragment) }
-        binding.rvTodo.adapter = mAdapter
-        binding.rvTodo.layoutManager = LinearLayoutManager(requireContext())
+        binding.rvTodo.let {
+            it.adapter = mAdapter
+            it.layoutManager = LinearLayoutManager(requireContext())
+            it.addItemDecoration(DividerItemDecoration(it.context, 1))
+        }
 
         // attach itemTouchHelper to recyclerview
         itemTouchHelper =

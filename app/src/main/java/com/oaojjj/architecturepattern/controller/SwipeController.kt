@@ -153,6 +153,7 @@ abstract class SwipeController(context: Context, var recyclerView: RecyclerView)
         var translationX = dX
         val itemView = vh.itemView
 
+        Log.d(TAG, "onChildDraw_test: $dX")
         if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
             if (dX < 0) {
                 var buffer: MutableList<UnderlayButton> = mutableListOf()

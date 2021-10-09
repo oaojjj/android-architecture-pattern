@@ -32,19 +32,18 @@ class AddTodoFragment : Fragment(), OnFinishedAddTodoListener {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        //fragment 키보드 올리기
         showInput()
+        super.onViewCreated(view, savedInstanceState)
     }
 
+    //fragment 키보드 올리기
     private fun showInput() {
         binding.etTodoContents.requestFocus()
-
         val mInputMethodManager =
             requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        mInputMethodManager.toggleSoftInputFromWindow(
-            binding.etTodoContents.applicationWindowToken,
-            InputMethodManager.SHOW_FORCED, 0
+        mInputMethodManager.showSoftInput(
+            binding.etTodoContents,
+            InputMethodManager.SHOW_IMPLICIT
         )
     }
 
