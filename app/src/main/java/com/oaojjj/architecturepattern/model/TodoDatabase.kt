@@ -13,14 +13,15 @@ abstract class TodoDatabase : RoomDatabase() {
         private var INSTANCE: TodoDatabase? = null
 
         fun getInstance(context: Context): TodoDatabase {
-            return INSTANCE ?: Room.databaseBuilder(
-                context.applicationContext,
-                TodoDatabase::class.java,
-                "TodoDatabase"
-            ).fallbackToDestructiveMigration()
-                .allowMainThreadQueries()
-                .build()
-                .apply { INSTANCE = this }
+            return INSTANCE ?: synchronized(context) {
+                Room.databaseBuilder(
+                    context.applicationContext,
+                    TodoDatabase::class.java,
+                    "TodoDatabase"
+                ).fallbackToDestructiveMigration()
+                    .build()
+                    .apply { INSTANCE = this }
+            }
         }
     }
 }

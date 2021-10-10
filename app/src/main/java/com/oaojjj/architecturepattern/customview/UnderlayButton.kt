@@ -44,6 +44,8 @@ class UnderlayButton() {
             color = mTextColor
             textSize = mTextSize
             textAlign = Paint.Align.LEFT
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+
             getTextBounds(mText, 0, mText.length, r)
         }
     }
@@ -89,11 +91,10 @@ class UnderlayButton() {
     }
 
     fun onClick(x: Float, y: Float): Boolean {
-        if (mClickRegion != null && mClickRegion?.contains(x, y) == true) {
+        if (mClickRegion?.contains(x, y)!!) {
             mListener?.onUnderlayButtonClick(mPos)
             return true
         }
         return false
     }
-
 }

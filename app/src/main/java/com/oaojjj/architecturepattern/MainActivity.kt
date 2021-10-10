@@ -13,6 +13,7 @@ import com.oaojjj.architecturepattern.databinding.ActivityMainBinding
 import com.oaojjj.architecturepattern.frgment.ActiveListFragment
 import com.oaojjj.architecturepattern.frgment.AddTodoFragment
 import com.oaojjj.architecturepattern.listener.OnFinishedAddTodoListener
+import com.oaojjj.architecturepattern.model.TodoModel
 
 // 안드로이드에서 MVC 구조는 activity(or fragment)가 controller 와 view 의 역할을 수행한다.
 // view는 xml_layout 자체이다.
@@ -30,6 +31,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
+
+        // model
+        Thread { TodoModel.setContext(applicationContext) }.start()
 
         // view, controller
         setContentView(binding.root)
@@ -55,6 +59,12 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         addTodoFragment = AddTodoFragment().apply { finishedAddTodoListener = this }
         supportFragmentManager.beginTransaction()
             .addToBackStack("addTodoFragment")
+            .setCustomAnimations(
+                R.anim.enter_from_left,
+                R.anim.exit_to_right,
+                R.anim.enter_from_right,
+                R.anim.exit_to_left
+            )
             .replace(R.id.fl_container_main, addTodoFragment)
             .commit()
 
@@ -64,11 +74,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun onFinishedAddTodo() {
         finishedAddTodoListener.onFinishedAddTodo()
+
         supportFragmentManager.popBackStack(
             "addTodoFragment",
             FragmentManager.POP_BACK_STACK_INCLUSIVE
         )
-        Log.d("main", "finishedAddTodo: ${supportFragmentManager.backStackEntryCount}")
         changeBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER)
     }
 

@@ -17,13 +17,15 @@ object TodoModel {
 
     fun getPosition(): Int = mPosition
 
-    private fun getAll(): MutableList<Todo> = db?.getAll()!!
-
-    fun getDataList(): MutableList<Todo> = mDataList
-
     fun setPosition(position: Int) {
         mPosition = position
     }
+
+    fun getDataList(): MutableList<Todo> = mDataList
+
+    fun getData(pos: Int) = mDataList[pos]
+
+    fun getAll(): MutableList<Todo> = db?.getAll()!!
 
     /**
      * 사용자 이벤트 발생 하고 호출되는 메소드(callback)
@@ -41,14 +43,14 @@ object TodoModel {
         mDataList.add(newTodo)
     }
 
-    fun removeTodo() {
-        db?.delete(mDataList[mPosition])
-        mDataList.removeAt(mPosition)
+    fun removeTodo(position: Int) {
+        db?.delete(mDataList[position])
+        mDataList.removeAt(position)
     }
 
-    fun updateTodo(newContents: String) {
-        mDataList[mPosition].content = newContents
-        db?.update(mDataList[mPosition])
+    fun updateTodo(position: Int, newContents: String) {
+        mDataList[position].content = newContents
+        db?.update(mDataList[position])
     }
 
     fun updateChecked(position: Int, checked: Boolean) {
