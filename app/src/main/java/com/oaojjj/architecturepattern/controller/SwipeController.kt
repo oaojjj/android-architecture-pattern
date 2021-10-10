@@ -20,7 +20,7 @@ import android.view.View.OnTouchListener
 
 @SuppressLint("ClickableViewAccessibility")
 abstract class SwipeController(context: Context, var recyclerView: RecyclerView) :
-    ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+    ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
     private val TAG: String = "SwipeController"
     private var buttonWidth = context.resources.getDimension(R.dimen.underlay_button_width)
     private var buttons: MutableList<UnderlayButton> = mutableListOf()
@@ -80,7 +80,6 @@ abstract class SwipeController(context: Context, var recyclerView: RecyclerView)
         false
     }
 
-
     /**
      * create(add to itemView) underlayButton
      * 추상 메소드를 이용해서 버튼을 만듬
@@ -91,9 +90,6 @@ abstract class SwipeController(context: Context, var recyclerView: RecyclerView)
     )
 
 
-    /**
-     * 초기화
-     */
     init {
         gestureDetector = GestureDetector(context, gestureListener)
         recyclerView.setOnTouchListener(onTouchListener)
