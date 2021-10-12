@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.view.MenuItem
 import android.view.View
 import android.widget.Toolbar
 import androidx.appcompat.app.AppCompatActivity
@@ -17,6 +18,7 @@ import com.oaojjj.architecturepattern.frgment.ActiveListFragment
 import com.oaojjj.architecturepattern.frgment.AddTodoFragment
 import com.oaojjj.architecturepattern.listener.OnFinishedAddTodoListener
 import com.oaojjj.architecturepattern.model.TodoModel
+import com.oaojjj.architecturepattern.utils.Util
 
 // 안드로이드에서 MVC 구조는 activity(or fragment)가 controller 와 view 의 역할을 수행한다.
 // view는 xml_layout 자체이다.
@@ -79,8 +81,18 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     override fun onClick(view: View) {
         Log.d("MainActivity", "onClick: ${supportFragmentManager.backStackEntryCount}")
         when (fabFlag) {
-            true -> onAddTodo()
-            false -> onFinishedAddTodo()
+            true -> {
+                onAddTodo()
+                changeBottomAnimation(
+                    R.drawable.check, BottomAppBar.FAB_ALIGNMENT_MODE_END, View.GONE
+                )
+            }
+            false -> {
+                onFinishedAddTodo()
+                changeBottomAnimation(
+                    R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER, View.VISIBLE
+                )
+            }
         }
     }
 
@@ -98,11 +110,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             .commit()
 
         Log.d("main", "onAddTodo: ${supportFragmentManager.backStackEntryCount}")
-        changeBottomAnimation(
-            R.drawable.check,
-            BottomAppBar.FAB_ALIGNMENT_MODE_END,
-            View.GONE
-        )
     }
 
     private fun onFinishedAddTodo() {
@@ -111,11 +118,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         supportFragmentManager.popBackStack(
             "addTodoFragment",
             FragmentManager.POP_BACK_STACK_INCLUSIVE
-        )
-        changeBottomAnimation(
-            R.drawable.add,
-            BottomAppBar.FAB_ALIGNMENT_MODE_CENTER,
-            View.VISIBLE
         )
     }
 
@@ -139,13 +141,19 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == android.R.id.home) {
+            onBackPressed()
+            return true
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
     override fun onBackPressed() {
         if (!fabFlag) {
             Log.d("main", "onBackPressed: ${supportFragmentManager.backStackEntryCount}")
             changeBottomAnimation(
-                R.drawable.add,
-                BottomAppBar.FAB_ALIGNMENT_MODE_CENTER,
-                View.VISIBLE
+                R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER, View.VISIBLE
             )
         }
         super.onBackPressed()

@@ -1,6 +1,7 @@
 package com.oaojjj.architecturepattern.utils
 
 import android.content.Context
+import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 
@@ -19,8 +20,9 @@ object Util {
     }
 
     // 키보드 내리기
-    fun hideInput(editText: EditText) {
-        mInputMethodManager?.hideSoftInputFromWindow(editText.windowToken, 0)
+    fun hideInput(view: View?) {
+        mInputMethodManager?.hideSoftInputFromWindow(view?.windowToken, 0)
+        view?.clearFocus()
         mInputMethodManager = null
     }
 }

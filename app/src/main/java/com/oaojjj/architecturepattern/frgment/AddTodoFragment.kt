@@ -7,13 +7,12 @@ import android.os.Looper
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
-import android.view.inputmethod.InputMethodManager
+import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import com.oaojjj.architecturepattern.MainActivity
-import com.oaojjj.architecturepattern.R
 import com.oaojjj.architecturepattern.databinding.FragmentAddTodoBinding
 import com.oaojjj.architecturepattern.listener.OnFinishedAddTodoListener
 import com.oaojjj.architecturepattern.model.TodoModel
@@ -23,12 +22,20 @@ import com.oaojjj.architecturepattern.utils.Util
 class AddTodoFragment : Fragment(), OnFinishedAddTodoListener {
     private lateinit var binding: FragmentAddTodoBinding
     private lateinit var prevTitle: String
+    private var supportActionBar: ActionBar? = null
 
     override fun onAttach(context: Context) {
         MainActivity.expendedAppBarLayout()
-        prevTitle = (requireActivity() as AppCompatActivity).supportActionBar?.title.toString()
-        (requireActivity() as AppCompatActivity).supportActionBar?.title = "할 일 추가"
+        initToolbar()
         super.onAttach(context)
+    }
+
+    private fun initToolbar() {
+        supportActionBar = (requireActivity() as AppCompatActivity).supportActionBar.apply {
+            prevTitle = this?.title.toString()
+            this?.title = "할 일 추가"
+            this?.setDisplayHomeAsUpEnabled(true)
+        }
     }
 
     override fun onCreateView(
@@ -48,13 +55,13 @@ class AddTodoFragment : Fragment(), OnFinishedAddTodoListener {
 
     override fun onFinishedAddTodo() {
         Log.d("AddTodoFragment_TAG", "onFinishedAddTodo: ${binding.etTodoContents.text}")
-        Util.hideInput(binding.etTodoContents)
         Thread { TodoModel.addTodo(binding.etTodoContents.text.toString()) }.start()
     }
 
     override fun onDestroy() {
-        Util.hideInput(binding.etTodoContents)
-        (requireActivity() as AppCompatActivity).supportActionBar?.title = prevTitle
+        Util.hideInput(requireActivity().currentFocus)
+        supportActionBar?.title = prevTitle
+        supportActionBar?.setDisplayHomeAsUpEnabled(false)
         super.onDestroy()
     }
 }
