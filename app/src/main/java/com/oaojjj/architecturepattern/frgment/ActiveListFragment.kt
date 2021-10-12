@@ -1,5 +1,6 @@
 package com.oaojjj.architecturepattern.frgment
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -37,6 +38,7 @@ class ActiveListFragment : Fragment(), OnTodoCheckBoxClickListener {
         savedInstanceState: Bundle?
     ): View? {
         Log.d("ActiveListFragment_TAG", "onCreateView: ")
+        (requireActivity() as MainActivity).showOptionMenu(false)
         binding = FragmentActiveListBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -104,30 +106,9 @@ class ActiveListFragment : Fragment(), OnTodoCheckBoxClickListener {
         itemTouchHelper.attachToRecyclerView(binding.rvTodo)
     }
 
-    override fun onStart() {
-        Log.d("ActiveListFragment_TAG", "onStart: ")
-        super.onStart()
-    }
-
     override fun onResume() {
-        Log.d("ActiveListFragment_TAG", "onResume: ")
         requireActivity().title = getString(R.string.todo_list)
         super.onResume()
-    }
-
-    override fun onStop() {
-        Log.d("ActiveListFragment_TAG", "onStop: ")
-        super.onStop()
-    }
-
-    override fun onPause() {
-        Log.d("ActiveListFragment_TAG", "onPause: ")
-        super.onPause()
-    }
-
-    override fun onDestroyView() {
-        Log.d("ActiveListFragment_TAG", "onDestroyView: ")
-        super.onDestroyView()
     }
 
     /**
@@ -146,7 +127,7 @@ class ActiveListFragment : Fragment(), OnTodoCheckBoxClickListener {
                 mAdapter.notifyItemRangeChanged(pos, TodoModel.size())
             }
         }.start()
-        MainActivity.showBottomAppBar()
+        (requireActivity() as MainActivity).showBottomAppBar()
     }
 
     // 데이터 수정(체크 유무)

@@ -26,12 +26,16 @@ class AddTodoFragment : Fragment(), OnFinishedAddTodoListener {
     private var supportActionBar: ActionBar? = null
 
     override fun onAttach(context: Context) {
-        MainActivity.expendedAppBarLayout()
         initToolbar()
         super.onAttach(context)
     }
 
     private fun initToolbar() {
+        (requireActivity() as MainActivity).let {
+            it.expendedAppBarLayout()
+            it.showOptionMenu(true)
+        }
+
         supportActionBar = (requireActivity() as AppCompatActivity).supportActionBar.apply {
             prevTitle = this?.title.toString()
             this?.title = "할 일 추가"

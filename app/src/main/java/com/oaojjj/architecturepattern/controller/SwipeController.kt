@@ -46,8 +46,11 @@ abstract class SwipeController(context: Context, var mRecyclerView: RecyclerView
                     for (button in buttons) {
                         count += 1
                         if (button.onClick(e.x, e.y)) {
-                            if (count == 1) {
-                                swipedPos = -1
+                            swipedPos = if (count == 1) {
+                                -1
+                            } else {
+                                recoverSwipedItem()
+                                -1
                             }
                             Log.d(TAG, "onSingleTapConfirmed: $recoverQueue")
                             break

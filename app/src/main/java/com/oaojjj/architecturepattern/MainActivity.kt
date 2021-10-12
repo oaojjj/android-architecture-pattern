@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -20,31 +21,12 @@ import com.oaojjj.architecturepattern.model.TodoModel
 // 안드로이드에서 MVC 구조는 activity(or fragment)가 controller 와 view 의 역할을 수행한다.
 // view는 xml_layout 자체이다.
 class MainActivity : AppCompatActivity(), View.OnClickListener {
-    companion object {
-        private lateinit var bottomAppBar: BottomAppBar
-        private lateinit var appBarLayout: AppBarLayout
-
-        fun showBottomAppBar() {
-            Log.d("test_now", "showBottomAppBar: show")
-            bottomAppBar.behavior.slideUp(bottomAppBar)
-        }
-
-        fun hideBottomAppBar() {
-            bottomAppBar.behavior.slideDown(bottomAppBar)
-        }
-
-        fun expendedAppBarLayout() {
-            appBarLayout.setExpanded(true)
-        }
-
-        fun collapsedAppBarLayout() {
-            appBarLayout.setExpanded(false)
-        }
-
-    }
+    private var menuVisible: Boolean = false
+    private lateinit var bottomAppBar: BottomAppBar
+    private lateinit var appBarLayout: AppBarLayout
 
     private lateinit var binding: ActivityMainBinding
-    private var fabFlag = true
+    private var changeFlag = true
 
     // fragment instance
     private var activeListFragment = ActiveListFragment()
@@ -56,6 +38,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
+
+        // setting appbar
         setSupportActionBar(binding.toolbar)
         bottomAppBar = binding.babMain
         appBarLayout = binding.appBarLayout
@@ -77,18 +61,14 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     override fun onClick(view: View) {
         Log.d("MainActivity", "onClick: ${supportFragmentManager.backStackEntryCount}")
-        when (fabFlag) {
+        when (changeFlag) {
             true -> {
                 onAddTodo()
-                changeBottomAnimation(
-                    R.drawable.check, BottomAppBar.FAB_ALIGNMENT_MODE_END, View.GONE
-                )
+                changeBottomAnimation(R.drawable.check, BottomAppBar.FAB_ALIGNMENT_MODE_END)
             }
             false -> {
                 onFinishedAddTodo()
-                changeBottomAnimation(
-                    R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER, View.VISIBLE
-                )
+                changeBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER)
             }
         }
     }
@@ -118,9 +98,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     /**
      *  change bottom fab position(fab, bottomAbbBar)
      */
-    private fun changeBottomAnimation(ResId: Int, fabAlignmentMode: Int, v: Int) {
-        binding.babMain.visibility = v
-        fabFlag = !fabFlag
+    private fun changeBottomAnimation(ResId: Int, fabAlignmentMode: Int) {
+        changeFlag = !changeFlag
         binding.babMain.fabAlignmentMode = fabAlignmentMode
         Handler(Looper.getMainLooper()).apply {
             postDelayed({
@@ -132,24 +111,65 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
-            onBackPressed()
-            return true
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_todo, menu)
+        val menuItem = menu?.findItem(R.id.save_todo)
+
+        return if (menuVisible) {
+            menuItem?.isVisible = true
+            true
+        } else {
+            menuItem?.isVisible = false
+            false
         }
-        return super.onOptionsItemSelected(item)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+                true
+            }
+            R.id.save_todo -> {
+                onFinishedAddTodo()
+                changeBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     // fragment에서 뒤로가기 눌렀을 때 호출된다.
     // 현재는 AddTodoFragment 한개에서만 호출되서 따로 인터페이스 구현은 안해도 될듯?
     override fun onBackPressed() {
-        if (!fabFlag) {
-            Log.d("main", "onBackPressed: ${supportFragmentManager.backStackEntryCount}")
-            changeBottomAnimation(
-                R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER, View.VISIBLE
-            )
+        if (!changeFlag) {
+            changeBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER)
         }
         super.onBackPressed()
-        Log.d("main", "onBackPressed: ${supportFragmentManager.backStackEntryCount}")
+    }
+
+    /**
+     * control appbar
+     * 상단 액션바, 하단 바텀바 - view 조작
+     */
+    fun showBottomAppBar() {
+        bottomAppBar.behavior.slideUp(bottomAppBar)
+    }
+
+    fun hideBottomAppBar() {
+        bottomAppBar.behavior.slideDown(bottomAppBar)
+    }
+
+    fun expendedAppBarLayout() {
+        appBarLayout.setExpanded(true)
+    }
+
+    fun collapsedAppBarLayout() {
+        appBarLayout.setExpanded(false)
+    }
+
+    fun showOptionMenu(isShow: Boolean) {
+        invalidateOptionsMenu()
+        menuVisible = isShow
     }
 }
