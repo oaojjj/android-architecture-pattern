@@ -69,7 +69,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             .commit()
 
         Log.d("main", "onAddTodo: ${supportFragmentManager.backStackEntryCount}")
-        changeBottomAnimation(R.drawable.check, BottomAppBar.FAB_ALIGNMENT_MODE_END)
+        changeBottomAnimation(R.drawable.check, BottomAppBar.FAB_ALIGNMENT_MODE_END, View.GONE)
     }
 
     private fun onFinishedAddTodo() {
@@ -79,13 +79,14 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             "addTodoFragment",
             FragmentManager.POP_BACK_STACK_INCLUSIVE
         )
-        changeBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER)
+        changeBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER, View.VISIBLE)
     }
 
     /**
      *  change bottom fab position(fab, bottomAbbBar)
      */
-    private fun changeBottomAnimation(ResId: Int, fabAlignmentMode: Int) {
+    private fun changeBottomAnimation(ResId: Int, fabAlignmentMode: Int, visibility: Int) {
+        binding.babMain.visibility = visibility
         fabFlag = !fabFlag
         Handler(Looper.getMainLooper()).apply {
             postDelayed({
@@ -101,7 +102,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     override fun onBackPressed() {
         if (!fabFlag) {
             Log.d("main", "onBackPressed: ${supportFragmentManager.backStackEntryCount}")
-            changeBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER)
+            changeBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER,View.VISIBLE)
         }
         super.onBackPressed()
     }

@@ -10,7 +10,7 @@ import com.oaojjj.architecturepattern.listener.OnUnderlayButtonClickListener
 class UnderlayButton() {
     private var mText: String = "기능"
     private var mTextColor: Int = Color.WHITE
-    private var mTextSize: Float = 64f
+    private var mTextSize: Float = 56f
 
     private var mBackground: Int = 0
     private var mImageResId: Drawable? = null
