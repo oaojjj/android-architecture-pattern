@@ -10,7 +10,7 @@ import com.oaojjj.architecturepattern.listener.OnUnderlayButtonClickListener
 class UnderlayButton() {
     private var mText: String = "기능"
     private var mTextColor: Int = Color.WHITE
-    private var mTextSize: Float = 64f
+    private var mTextSize: Float = 56f
 
     private var mBackground: Int = 0
     private var mImageResId: Drawable? = null
@@ -44,6 +44,8 @@ class UnderlayButton() {
             color = mTextColor
             textSize = mTextSize
             textAlign = Paint.Align.LEFT
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+
             getTextBounds(mText, 0, mText.length, r)
         }
     }
@@ -89,11 +91,10 @@ class UnderlayButton() {
     }
 
     fun onClick(x: Float, y: Float): Boolean {
-        if (mClickRegion != null && mClickRegion?.contains(x, y) == true) {
+        if (mClickRegion?.contains(x, y)!!) {
             mListener?.onUnderlayButtonClick(mPos)
             return true
         }
         return false
     }
-
 }

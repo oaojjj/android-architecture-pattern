@@ -19,8 +19,9 @@ import android.view.View.OnTouchListener
 
 
 @SuppressLint("ClickableViewAccessibility")
-abstract class SwipeController(context: Context, var recyclerView: RecyclerView) :
-    ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+
+abstract class SwipeController(context: Context, var mRecyclerView: RecyclerView) :
+    ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
     private val TAG: String = "SwipeController"
     private var buttonWidth = context.resources.getDimension(R.dimen.underlay_button_width)
     private var buttons: MutableList<UnderlayButton> = mutableListOf()
@@ -40,8 +41,10 @@ abstract class SwipeController(context: Context, var recyclerView: RecyclerView)
         object : GestureDetector.SimpleOnGestureListener() {
             override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
                 Log.d(TAG, "gestureListener_test: ${e?.action}, x:${e?.x}, y:${e?.y}")
-                for (button in buttons)
-                    if (e?.x?.let { button.onClick(it, e?.y) }) break
+                e?.let {
+                    for (button in buttons)
+                        if (button.onClick(e.x, e.y)) break
+                }
                 return true
             }
         }
@@ -59,7 +62,7 @@ abstract class SwipeController(context: Context, var recyclerView: RecyclerView)
 
         val rect = Rect()
         // 뷰가 보이면 true 반환 + rect 위치 추적하는듯? -> rect 포지션을 위해 호출하는 듯
-        recyclerView.findViewHolderForAdapterPosition(swipedPos)
+        mRecyclerView.findViewHolderForAdapterPosition(swipedPos)
             ?.itemView?.getGlobalVisibleRect(rect)
 
         Log.d("onTouchListener", "내가 찍은 포지션: $point")
@@ -92,10 +95,10 @@ abstract class SwipeController(context: Context, var recyclerView: RecyclerView)
 
     init {
         gestureDetector = GestureDetector(context, gestureListener)
-        recyclerView.setOnTouchListener(onTouchListener)
+        mRecyclerView.setOnTouchListener(onTouchListener)
         recoverQueue = object : LinkedList<Int?>() {
-            override fun add(e: Int?): Boolean {
-                return if (contains(e)) false else super.add(e)
+            override fun add(element: Int?): Boolean {
+                return if (contains(element)) false else super.add(element)
             }
         }
     }
@@ -181,10 +184,9 @@ abstract class SwipeController(context: Context, var recyclerView: RecyclerView)
     @Synchronized
     private fun recoverSwipedItem() {
         while (!recoverQueue.isEmpty()) {
-            val pos = recoverQueue.poll()
-            if (pos!! > -1) {
-                recyclerView.adapter?.notifyItemChanged(pos)
-            }
+            val pos = recoverQueue.poll() ?: -1
+
+            if (pos > -1) mRecyclerView.adapter?.notifyItemChanged(pos)
         }
     }
 

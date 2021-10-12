@@ -1,6 +1,6 @@
 package com.oaojjj.architecturepattern.frgment
 
-import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.oaojjj.architecturepattern.MainActivity
 import com.oaojjj.architecturepattern.R
 import com.oaojjj.architecturepattern.adapter.TodoAdapter
 import com.oaojjj.architecturepattern.databinding.FragmentActiveListBinding
@@ -20,6 +21,8 @@ import com.oaojjj.architecturepattern.model.TodoModel
 import com.oaojjj.architecturepattern.controller.SwipeController
 import com.oaojjj.architecturepattern.customview.UnderlayButton
 import com.oaojjj.architecturepattern.listener.OnTodoCheckBoxClickListener
+import com.oaojjj.architecturepattern.listener.OnUnderlayButtonClickListener
+import com.oaojjj.architecturepattern.listener.OnUpdateTodoListener
 
 
 class ActiveListFragment : Fragment(), OnTodoCheckBoxClickListener {
@@ -29,12 +32,6 @@ class ActiveListFragment : Fragment(), OnTodoCheckBoxClickListener {
     private lateinit var itemTouchHelper: ItemTouchHelper
 
     private lateinit var mAdapter: TodoAdapter
-
-    override fun onAttach(context: Context) {
-        // model
-        TodoModel.setContext(context)
-        super.onAttach(context)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -49,9 +46,12 @@ class ActiveListFragment : Fragment(), OnTodoCheckBoxClickListener {
         super.onViewCreated(view, savedInstanceState)
         Log.d("ActiveListFragment_TAG", "onViewCreated: ")
         // init data, adapter
+
         mAdapter =
             TodoAdapter(requireContext(), TodoModel.getDataList())
-                .apply { setOnTodoCheckBoxListener(this@ActiveListFragment) }
+                .apply {
+                    setOnTodoCheckBoxListener(this@ActiveListFragment)
+                }
         binding.rvTodo.let {
             it.adapter = mAdapter
             it.layoutManager = LinearLayoutManager(requireContext())
@@ -72,6 +72,11 @@ class ActiveListFragment : Fragment(), OnTodoCheckBoxClickListener {
                                 requireContext(),
                                 R.color.colorDelete
                             ),
+                            listener = object : OnUnderlayButtonClickListener {
+                                override fun onUnderlayButtonClick(pos: Int) {
+                                    onRemoveTodo(pos)
+                                }
+                            }
                         )
                     )
                     buttons.add(
@@ -81,13 +86,23 @@ class ActiveListFragment : Fragment(), OnTodoCheckBoxClickListener {
                                 requireContext(),
                                 R.color.colorEdit
                             ),
+                            listener = object : OnUnderlayButtonClickListener {
+                                override fun onUnderlayButtonClick(pos: Int) {
+                                    UpdateTodoDialog(
+                                        object : OnUpdateTodoListener {
+                                            override fun onUpdateFinished() {
+                                                mAdapter.notifyItemChanged(pos)
+                                            }
+                                        }, pos
+                                    ).show(requireActivity().supportFragmentManager, null)
+                                }
+                            }
                         )
                     )
                 }
 
             })
         itemTouchHelper.attachToRecyclerView(binding.rvTodo)
-
     }
 
     override fun onStart() {
@@ -123,31 +138,26 @@ class ActiveListFragment : Fragment(), OnTodoCheckBoxClickListener {
      * Model 에서 데이터를 조작 후 View 는 UI만 갱신
      */
 
-//    // 데이터 추가
-//    private fun onAddTodo(contents: String?) {
-//        if (contents != null) {
-//            TodoModel.addTodo(contents)
-//            mAdapter.notifyItemInserted(TodoModel.size())
-//        }
-//    }
-
-    // 데이터 수정
-    private fun onUpdateTodo(contents: String) {
-        TodoModel.updateTodo(contents)
-        mAdapter.notifyItemChanged(TodoModel.getPosition())
-    }
-
     // 데이터 삭제
-    private fun onRemoveTodo() {
-        TodoModel.removeTodo()
-        mAdapter.notifyItemRemoved(TodoModel.getPosition())
-        mAdapter.notifyItemRangeChanged(TodoModel.getPosition(), TodoModel.size())
+    private fun onRemoveTodo(pos: Int) {
+        Thread {
+            TodoModel.removeTodo(pos)
+            requireActivity().runOnUiThread {
+                mAdapter.notifyItemRemoved(pos)
+                mAdapter.notifyItemRangeChanged(pos, TodoModel.size())
+            }
+        }.start()
+        MainActivity.showBottomAppBar()
     }
 
     // 데이터 수정(체크 유무)
     private fun onUpdateCheckedTodo(position: Int, checked: Boolean) {
-        TodoModel.updateChecked(position, checked)
-        mAdapter.notifyItemChanged(position)
+        Thread {
+            TodoModel.updateChecked(position, checked)
+            requireActivity().runOnUiThread {
+                mAdapter.notifyItemChanged(position)
+            }
+        }.start()
     }
 
     override fun onTodoCheckBoxClick(position: Int, checked: Boolean) {

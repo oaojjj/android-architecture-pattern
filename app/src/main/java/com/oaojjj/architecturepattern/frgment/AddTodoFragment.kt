@@ -2,24 +2,40 @@ package com.oaojjj.architecturepattern.frgment
 
 import android.content.Context
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
-import com.oaojjj.architecturepattern.R
+import androidx.appcompat.app.ActionBar
+import androidx.appcompat.app.AppCompatActivity
+import com.oaojjj.architecturepattern.MainActivity
 import com.oaojjj.architecturepattern.databinding.FragmentAddTodoBinding
 import com.oaojjj.architecturepattern.listener.OnFinishedAddTodoListener
 import com.oaojjj.architecturepattern.model.TodoModel
+import com.oaojjj.architecturepattern.utils.Util
 
 
 class AddTodoFragment : Fragment(), OnFinishedAddTodoListener {
     private lateinit var binding: FragmentAddTodoBinding
+    private lateinit var prevTitle: String
+    private var supportActionBar: ActionBar? = null
 
     override fun onAttach(context: Context) {
-        requireActivity().title = getString(R.string.todo_add)
+        MainActivity.expendedAppBarLayout()
+        initToolbar()
         super.onAttach(context)
+    }
+
+    private fun initToolbar() {
+        supportActionBar = (requireActivity() as AppCompatActivity).supportActionBar.apply {
+            prevTitle = this?.title.toString()
+            this?.title = "할 일 추가"
+            this?.setDisplayHomeAsUpEnabled(true)
+        }
     }
 
     override fun onCreateView(
@@ -31,23 +47,21 @@ class AddTodoFragment : Fragment(), OnFinishedAddTodoListener {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        showInput()
+        Handler(Looper.getMainLooper()).postDelayed({
+            Util.showInput(requireContext(), binding.etTodoContents)
+        }, 100)
         super.onViewCreated(view, savedInstanceState)
-    }
-
-    //fragment 키보드 올리기
-    private fun showInput() {
-        binding.etTodoContents.requestFocus()
-        val mInputMethodManager =
-            requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        mInputMethodManager.showSoftInput(
-            binding.etTodoContents,
-            InputMethodManager.SHOW_IMPLICIT
-        )
     }
 
     override fun onFinishedAddTodo() {
         Log.d("AddTodoFragment_TAG", "onFinishedAddTodo: ${binding.etTodoContents.text}")
-        TodoModel.addTodo(binding.etTodoContents.text.toString())
+        Thread { TodoModel.addTodo(binding.etTodoContents.text.toString()) }.start()
+    }
+
+    override fun onDestroy() {
+        Util.hideInput(requireActivity().currentFocus)
+        supportActionBar?.title = prevTitle
+        supportActionBar?.setDisplayHomeAsUpEnabled(false)
+        super.onDestroy()
     }
 }
