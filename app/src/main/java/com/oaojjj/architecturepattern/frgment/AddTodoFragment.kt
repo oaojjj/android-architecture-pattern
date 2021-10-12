@@ -11,6 +11,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
+import androidx.appcompat.app.AppCompatActivity
+import com.oaojjj.architecturepattern.MainActivity
 import com.oaojjj.architecturepattern.R
 import com.oaojjj.architecturepattern.databinding.FragmentAddTodoBinding
 import com.oaojjj.architecturepattern.listener.OnFinishedAddTodoListener
@@ -20,9 +22,12 @@ import com.oaojjj.architecturepattern.utils.Util
 
 class AddTodoFragment : Fragment(), OnFinishedAddTodoListener {
     private lateinit var binding: FragmentAddTodoBinding
+    private lateinit var prevTitle: String
 
     override fun onAttach(context: Context) {
-        requireActivity().title = getString(R.string.todo_add)
+        MainActivity.expendedAppBarLayout()
+        prevTitle = (requireActivity() as AppCompatActivity).supportActionBar?.title.toString()
+        (requireActivity() as AppCompatActivity).supportActionBar?.title = "할 일 추가"
         super.onAttach(context)
     }
 
@@ -49,6 +54,7 @@ class AddTodoFragment : Fragment(), OnFinishedAddTodoListener {
 
     override fun onDestroy() {
         Util.hideInput(binding.etTodoContents)
+        (requireActivity() as AppCompatActivity).supportActionBar?.title = prevTitle
         super.onDestroy()
     }
 }

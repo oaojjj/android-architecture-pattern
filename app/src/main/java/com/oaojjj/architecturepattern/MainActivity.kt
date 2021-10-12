@@ -5,9 +5,12 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.View
+import android.widget.Toolbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentManager
+import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.behavior.HideBottomViewOnScrollBehavior
 import com.google.android.material.bottomappbar.BottomAppBar
 import com.oaojjj.architecturepattern.databinding.ActivityMainBinding
 import com.oaojjj.architecturepattern.frgment.ActiveListFragment
@@ -18,6 +21,29 @@ import com.oaojjj.architecturepattern.model.TodoModel
 // 안드로이드에서 MVC 구조는 activity(or fragment)가 controller 와 view 의 역할을 수행한다.
 // view는 xml_layout 자체이다.
 class MainActivity : AppCompatActivity(), View.OnClickListener {
+    companion object {
+        private lateinit var bottomAppBar: BottomAppBar
+        private lateinit var appBarLayout: AppBarLayout
+
+        fun showBottomAppBar() {
+            Log.d("test_now", "showBottomAppBar: show")
+            bottomAppBar.behavior.slideUp(bottomAppBar)
+        }
+
+        fun hideBottomAppBar() {
+            bottomAppBar.behavior.slideDown(bottomAppBar)
+        }
+
+        fun expendedAppBarLayout() {
+            appBarLayout.setExpanded(true)
+        }
+
+        fun collapsedAppBarLayout() {
+            appBarLayout.setExpanded(false)
+        }
+
+    }
+
     private lateinit var binding: ActivityMainBinding
     private var fabFlag = true
 
@@ -31,6 +57,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
+        setSupportActionBar(binding.toolbar)
+        bottomAppBar = binding.babMain
+        appBarLayout = binding.appBarLayout
 
         // model
         Thread { TodoModel.setContext(applicationContext) }.start()
@@ -69,7 +98,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             .commit()
 
         Log.d("main", "onAddTodo: ${supportFragmentManager.backStackEntryCount}")
-        changeBottomAnimation(R.drawable.check, BottomAppBar.FAB_ALIGNMENT_MODE_END, View.GONE)
+        changeBottomAnimation(
+            R.drawable.check,
+            BottomAppBar.FAB_ALIGNMENT_MODE_END,
+            View.GONE
+        )
     }
 
     private fun onFinishedAddTodo() {
@@ -79,30 +112,41 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             "addTodoFragment",
             FragmentManager.POP_BACK_STACK_INCLUSIVE
         )
-        changeBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER, View.VISIBLE)
+        changeBottomAnimation(
+            R.drawable.add,
+            BottomAppBar.FAB_ALIGNMENT_MODE_CENTER,
+            View.VISIBLE
+        )
     }
 
     /**
      *  change bottom fab position(fab, bottomAbbBar)
      */
-    private fun changeBottomAnimation(ResId: Int, fabAlignmentMode: Int, visibility: Int) {
-        binding.babMain.visibility = visibility
+    private fun changeBottomAnimation(ResId: Int, fabAlignmentMode: Int, v: Int) {
+        binding.babMain.visibility = v
         fabFlag = !fabFlag
+        binding.babMain.fabAlignmentMode = fabAlignmentMode
         Handler(Looper.getMainLooper()).apply {
             postDelayed({
                 binding.fabMain.setImageDrawable(
-                    ContextCompat.getDrawable(this@MainActivity, ResId)
+                    ContextCompat.getDrawable(
+                        this@MainActivity,
+                        ResId
+                    )
                 )
             }, 300)
         }
 
-        binding.babMain.fabAlignmentMode = fabAlignmentMode
     }
 
     override fun onBackPressed() {
         if (!fabFlag) {
             Log.d("main", "onBackPressed: ${supportFragmentManager.backStackEntryCount}")
-            changeBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER,View.VISIBLE)
+            changeBottomAnimation(
+                R.drawable.add,
+                BottomAppBar.FAB_ALIGNMENT_MODE_CENTER,
+                View.VISIBLE
+            )
         }
         super.onBackPressed()
     }

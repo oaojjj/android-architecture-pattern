@@ -1,5 +1,6 @@
 package com.oaojjj.architecturepattern.frgment
 
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.oaojjj.architecturepattern.MainActivity
 import com.oaojjj.architecturepattern.R
 import com.oaojjj.architecturepattern.adapter.TodoAdapter
 import com.oaojjj.architecturepattern.databinding.FragmentActiveListBinding
@@ -44,6 +46,7 @@ class ActiveListFragment : Fragment(), OnTodoCheckBoxClickListener {
         super.onViewCreated(view, savedInstanceState)
         Log.d("ActiveListFragment_TAG", "onViewCreated: ")
         // init data, adapter
+
         mAdapter =
             TodoAdapter(requireContext(), TodoModel.getDataList())
                 .apply {
@@ -144,7 +147,7 @@ class ActiveListFragment : Fragment(), OnTodoCheckBoxClickListener {
                 mAdapter.notifyItemRangeChanged(pos, TodoModel.size())
             }
         }.start()
-
+        MainActivity.showBottomAppBar()
     }
 
     // 데이터 수정(체크 유무)
