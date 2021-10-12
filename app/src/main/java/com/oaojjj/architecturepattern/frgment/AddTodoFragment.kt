@@ -12,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import com.oaojjj.architecturepattern.MainActivity
 import com.oaojjj.architecturepattern.databinding.FragmentAddTodoBinding
 import com.oaojjj.architecturepattern.listener.OnFinishedAddTodoListener
@@ -58,8 +59,12 @@ class AddTodoFragment : Fragment(), OnFinishedAddTodoListener {
         Thread { TodoModel.addTodo(binding.etTodoContents.text.toString()) }.start()
     }
 
-    override fun onDestroy() {
+    override fun onDetach() {
         Util.hideInput(requireActivity().currentFocus)
+        super.onDetach()
+    }
+
+    override fun onDestroy() {
         supportActionBar?.title = prevTitle
         supportActionBar?.setDisplayHomeAsUpEnabled(false)
         super.onDestroy()

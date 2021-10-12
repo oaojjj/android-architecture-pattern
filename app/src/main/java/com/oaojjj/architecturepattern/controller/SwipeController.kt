@@ -21,7 +21,7 @@ import android.view.View.OnTouchListener
 @SuppressLint("ClickableViewAccessibility")
 
 abstract class SwipeController(context: Context, var mRecyclerView: RecyclerView) :
-    ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+    ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
     private val TAG: String = "SwipeController"
     private var buttonWidth = context.resources.getDimension(R.dimen.underlay_button_width)
     private var buttons: MutableList<UnderlayButton> = mutableListOf()
@@ -40,10 +40,19 @@ abstract class SwipeController(context: Context, var mRecyclerView: RecyclerView
     private val gestureListener: GestureDetector.OnGestureListener =
         object : GestureDetector.SimpleOnGestureListener() {
             override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
+                var count = 0
                 Log.d(TAG, "gestureListener_test: ${e?.action}, x:${e?.x}, y:${e?.y}")
                 e?.let {
-                    for (button in buttons)
-                        if (button.onClick(e.x, e.y)) break
+                    for (button in buttons) {
+                        count += 1
+                        if (button.onClick(e.x, e.y)) {
+                            if (count == 1) {
+                                swipedPos = -1
+                            }
+                            Log.d(TAG, "onSingleTapConfirmed: $recoverQueue")
+                            break
+                        }
+                    }
                 }
                 return true
             }
@@ -53,28 +62,26 @@ abstract class SwipeController(context: Context, var mRecyclerView: RecyclerView
      * RecyclerView TouchListener
      */
     private val onTouchListener = OnTouchListener { _, event ->
-        Log.d(TAG, "onTouchListener_test: $swipedPos")
         if (swipedPos < 0) return@OnTouchListener false
-
+        Log.d("TAG", "onTouchListener: ")
         // 현재 touch가 발생한 위치
         val point = Point(event.rawX.toInt(), event.rawY.toInt())
-
-
         val rect = Rect()
         // 뷰가 보이면 true 반환 + rect 위치 추적하는듯? -> rect 포지션을 위해 호출하는 듯
         mRecyclerView.findViewHolderForAdapterPosition(swipedPos)
             ?.itemView?.getGlobalVisibleRect(rect)
 
-        Log.d("onTouchListener", "내가 찍은 포지션: $point")
-        Log.d("onTouchListener", "rect 포지션: $rect")
 
         if (event.action == MotionEvent.ACTION_DOWN
             || event.action == MotionEvent.ACTION_UP
             || event.action == MotionEvent.ACTION_MOVE
         ) {
             // 해당하는 pos에 touch이벤트 발생
-            if (rect.top < point.y && rect.bottom > point.y) gestureDetector.onTouchEvent(event)
-            else {
+            if (rect.top < point.y && rect.bottom > point.y) {
+                Log.d("onTouchListener", "swipedPos:${swipedPos}")
+                gestureDetector.onTouchEvent(event)
+            } else {
+                Log.d("onTouchListener", "else")
                 recoverQueue.add(swipedPos)
                 swipedPos = -1
                 recoverSwipedItem()
@@ -114,8 +121,11 @@ abstract class SwipeController(context: Context, var mRecyclerView: RecyclerView
     // swipe 완료 시점에 호출
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
         val pos = viewHolder.adapterPosition
+        Log.d(TAG, "onSwiped: swipedPos:$swipedPos, pos:$pos, buttonsBuffer:$buttonsBuffer")
 
-        if (swipedPos != pos) recoverQueue.add(swipedPos)
+        if (swipedPos != pos) {
+            recoverQueue.add(pos)
+        }
 
         swipedPos = pos
 
@@ -124,7 +134,6 @@ abstract class SwipeController(context: Context, var mRecyclerView: RecyclerView
 
         buttonsBuffer.clear()
         swipeThreshold = 0.5f * buttons.size * buttonWidth
-        recoverSwipedItem()
     }
 
     override fun getSwipeThreshold(viewHolder: RecyclerView.ViewHolder): Float {
@@ -152,7 +161,6 @@ abstract class SwipeController(context: Context, var mRecyclerView: RecyclerView
         var translationX = dX
         val itemView = vh.itemView
 
-        Log.d(TAG, "onChildDraw_test: $dX")
         if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
             if (dX < 0) {
                 var buffer: MutableList<UnderlayButton> = mutableListOf()
@@ -183,9 +191,9 @@ abstract class SwipeController(context: Context, var mRecyclerView: RecyclerView
 
     @Synchronized
     private fun recoverSwipedItem() {
+        Log.d(TAG, "recoverSwipedItem: $recoverQueue")
         while (!recoverQueue.isEmpty()) {
             val pos = recoverQueue.poll() ?: -1
-
             if (pos > -1) mRecyclerView.adapter?.notifyItemChanged(pos)
         }
     }

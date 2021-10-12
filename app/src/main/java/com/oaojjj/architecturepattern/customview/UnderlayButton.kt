@@ -51,7 +51,7 @@ class UnderlayButton() {
     }
 
     fun onDraw(canvas: Canvas, rectF: RectF, pos: Int) {
-        Log.d("SwipeController", "onDraw: rectf_$rectF, pos_$pos")
+        // Log.d("SwipeController", "onDraw: rectf_$rectF, pos_$pos")
 
         canvas.apply {
             drawRect(rectF, paint)

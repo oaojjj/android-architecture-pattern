@@ -6,19 +6,16 @@ import android.os.Looper
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
-import android.widget.Toolbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.appbar.AppBarLayout
-import com.google.android.material.behavior.HideBottomViewOnScrollBehavior
 import com.google.android.material.bottomappbar.BottomAppBar
 import com.oaojjj.architecturepattern.databinding.ActivityMainBinding
 import com.oaojjj.architecturepattern.frgment.ActiveListFragment
 import com.oaojjj.architecturepattern.frgment.AddTodoFragment
 import com.oaojjj.architecturepattern.listener.OnFinishedAddTodoListener
 import com.oaojjj.architecturepattern.model.TodoModel
-import com.oaojjj.architecturepattern.utils.Util
 
 // 안드로이드에서 MVC 구조는 activity(or fragment)가 controller 와 view 의 역할을 수행한다.
 // view는 xml_layout 자체이다.
