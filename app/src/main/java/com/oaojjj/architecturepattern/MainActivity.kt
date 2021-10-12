@@ -105,9 +105,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 R.anim.exit_to_right,
                 R.anim.enter_from_right,
                 R.anim.exit_to_left
-            )
-            .replace(R.id.fl_container_main, addTodoFragment)
-            .commit()
+            ).replace(R.id.fl_container_main, addTodoFragment).commit()
 
         Log.d("main", "onAddTodo: ${supportFragmentManager.backStackEntryCount}")
     }
@@ -116,8 +114,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         finishedAddTodoListener.onFinishedAddTodo()
 
         supportFragmentManager.popBackStack(
-            "addTodoFragment",
-            FragmentManager.POP_BACK_STACK_INCLUSIVE
+            "addTodoFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE
         )
     }
 
@@ -131,10 +128,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         Handler(Looper.getMainLooper()).apply {
             postDelayed({
                 binding.fabMain.setImageDrawable(
-                    ContextCompat.getDrawable(
-                        this@MainActivity,
-                        ResId
-                    )
+                    ContextCompat.getDrawable(this@MainActivity, ResId)
                 )
             }, 300)
         }
@@ -149,6 +143,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         return super.onOptionsItemSelected(item)
     }
 
+    // fragment에서 뒤로가기 눌렀을 때 호출된다.
+    // 현재는 AddTodoFragment 한개에서만 호출되서 따로 인터페이스 구현은 안해도 될듯?
     override fun onBackPressed() {
         if (!fabFlag) {
             Log.d("main", "onBackPressed: ${supportFragmentManager.backStackEntryCount}")
@@ -157,5 +153,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             )
         }
         super.onBackPressed()
+        Log.d("main", "onBackPressed: ${supportFragmentManager.backStackEntryCount}")
     }
 }
