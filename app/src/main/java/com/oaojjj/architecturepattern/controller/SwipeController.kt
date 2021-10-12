@@ -20,7 +20,7 @@ import android.view.View.OnTouchListener
 
 @SuppressLint("ClickableViewAccessibility")
 abstract class SwipeController(context: Context, var recyclerView: RecyclerView) :
-    ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+    ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
     private val TAG: String = "SwipeController"
     private var buttonWidth = context.resources.getDimension(R.dimen.underlay_button_width)
     private var buttons: MutableList<UnderlayButton> = mutableListOf()
@@ -40,8 +40,8 @@ abstract class SwipeController(context: Context, var recyclerView: RecyclerView)
         object : GestureDetector.SimpleOnGestureListener() {
             override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
                 Log.d(TAG, "gestureListener_test: ${e?.action}, x:${e?.x}, y:${e?.y}")
-                //for (button in buttons)
-                //if (button.onClick(e!!.x, e.y)) break
+                for (button in buttons)
+                    if (e?.x?.let { button.onClick(it, e?.y) }) break
                 return true
             }
         }
