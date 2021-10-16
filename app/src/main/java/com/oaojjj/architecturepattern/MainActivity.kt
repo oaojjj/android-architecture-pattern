@@ -142,9 +142,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     // fragment에서 뒤로가기 눌렀을 때 호출된다.
     // 현재는 AddTodoFragment 한개에서만 호출되서 따로 인터페이스 구현은 안해도 될듯?
     override fun onBackPressed() {
-        if (!changeFlag) {
+        if (!changeFlag)
             changeBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER)
-        }
         super.onBackPressed()
     }
 

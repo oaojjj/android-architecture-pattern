@@ -54,7 +54,7 @@ class AddTodoFragment : Fragment(), OnFinishedAddTodoListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         Handler(Looper.getMainLooper()).postDelayed({
             Util.showInput(requireContext(), binding.etTodoContents)
-        }, 100)
+        }, 300)
         super.onViewCreated(view, savedInstanceState)
     }
 
