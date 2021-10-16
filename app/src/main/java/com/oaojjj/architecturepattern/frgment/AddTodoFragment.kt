@@ -12,7 +12,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import com.oaojjj.architecturepattern.MainActivity
 import com.oaojjj.architecturepattern.databinding.FragmentAddTodoBinding
 import com.oaojjj.architecturepattern.listener.OnFinishedAddTodoListener
@@ -31,11 +30,6 @@ class AddTodoFragment : Fragment(), OnFinishedAddTodoListener {
     }
 
     private fun initToolbar() {
-        (requireActivity() as MainActivity).let {
-            it.expendedAppBarLayout()
-            it.showOptionMenu(true)
-        }
-
         supportActionBar = (requireActivity() as AppCompatActivity).supportActionBar.apply {
             prevTitle = this?.title.toString()
             this?.title = "할 일 추가"

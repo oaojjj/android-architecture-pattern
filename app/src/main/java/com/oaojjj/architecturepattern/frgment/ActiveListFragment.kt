@@ -38,7 +38,6 @@ class ActiveListFragment : Fragment(), OnTodoCheckBoxClickListener {
         savedInstanceState: Bundle?
     ): View? {
         Log.d("ActiveListFragment_TAG", "onCreateView: ")
-        (requireActivity() as MainActivity).showOptionMenu(false)
         binding = FragmentActiveListBinding.inflate(inflater, container, false)
         return binding.root
     }

@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var appBarLayout: AppBarLayout
 
     private lateinit var binding: ActivityMainBinding
-    private var changeFlag = true
+    private var changeViewFlag = true
 
     // fragment instance
     private var activeListFragment = ActiveListFragment()
@@ -53,17 +53,14 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         // set listener
         binding.fabMain.setOnClickListener(this)
 
-        // fragment
-        supportFragmentManager.beginTransaction()
-            .add(R.id.fl_container_main, activeListFragment)
-            .commit()
+        createActiveListFragment()
     }
 
     override fun onClick(view: View) {
         Log.d("MainActivity", "onClick: ${supportFragmentManager.backStackEntryCount}")
-        when (changeFlag) {
+        when (changeViewFlag) {
             true -> {
-                onAddTodo()
+                createAddTodoFragment()
                 changeBottomAnimation(R.drawable.check, BottomAppBar.FAB_ALIGNMENT_MODE_END)
             }
             false -> {
@@ -73,7 +70,18 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
-    private fun onAddTodo() {
+    private fun createActiveListFragment() {
+        showOptionMenu(false)
+        supportFragmentManager.beginTransaction()
+            .add(R.id.fl_container_main, activeListFragment)
+            .commit()
+    }
+
+    // Todo를 추가할 수 있는 Fragment 생성
+    private fun createAddTodoFragment() {
+        expendedAppBarLayout()
+        showOptionMenu(true)
+
         addTodoFragment = AddTodoFragment().apply { finishedAddTodoListener = this }
         supportFragmentManager.beginTransaction()
             .addToBackStack("addTodoFragment")
@@ -99,7 +107,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
      *  change bottom fab position(fab, bottomAbbBar)
      */
     private fun changeBottomAnimation(ResId: Int, fabAlignmentMode: Int) {
-        changeFlag = !changeFlag
+        changeViewFlag = !changeViewFlag
         binding.babMain.fabAlignmentMode = fabAlignmentMode
         Handler(Looper.getMainLooper()).apply {
             postDelayed({
@@ -142,7 +150,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     // fragment에서 뒤로가기 눌렀을 때 호출된다.
     // 현재는 AddTodoFragment 한개에서만 호출되서 따로 인터페이스 구현은 안해도 될듯?
     override fun onBackPressed() {
-        if (!changeFlag)
+        if (!changeViewFlag)
             changeBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER)
         super.onBackPressed()
     }
