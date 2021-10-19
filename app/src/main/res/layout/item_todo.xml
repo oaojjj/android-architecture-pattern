@@ -3,16 +3,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@android:color/white"
-    >
+    android:background="@android:color/white">
 
-    <CheckBox
-        android:layout_marginVertical="8dp"
-        android:layout_marginHorizontal="8dp"
+    <androidx.appcompat.widget.AppCompatCheckBox
         android:id="@+id/cb_todo"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:background="?android:attr/listChoiceIndicatorMultiple"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginVertical="16dp"
+        android:layout_marginStart="16dp"
+        android:background="@drawable/custom_check_box"
         android:button="@null"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/tv_todo_contents"
@@ -22,10 +21,15 @@
     <TextView
         android:id="@+id/tv_todo_contents"
         android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:gravity="start|center"
-        android:textSize="20sp"
-        android:text="병원가기"
+        android:layout_height="0dp"
+        android:ellipsize="end"
+        android:paddingVertical="4dp"
+        android:paddingHorizontal="8dp"
+        android:gravity="center_vertical"
+        android:maxLines="2"
+        android:text="해야할 일"
+        android:textColor="@android:color/black"
+        android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/cb_todo"

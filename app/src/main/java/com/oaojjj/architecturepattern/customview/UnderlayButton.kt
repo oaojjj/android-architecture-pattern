@@ -4,12 +4,13 @@ import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.text.TextPaint
 import android.util.Log
+import com.oaojjj.architecturepattern.listener.OnUnderlayButtonClickListener
 
 
 class UnderlayButton() {
     private var mText: String = "기능"
     private var mTextColor: Int = Color.WHITE
-    private var mTextSize: Float = 64f
+    private var mTextSize: Float = 56f
 
     private var mBackground: Int = 0
     private var mImageResId: Drawable? = null
@@ -22,31 +23,35 @@ class UnderlayButton() {
     private lateinit var paint: Paint
     private lateinit var textPaint: TextPaint
 
-    private lateinit var mClickRegion: RectF
+    private var mClickRegion: RectF? = null
+    private var mListener: OnUnderlayButtonClickListener? = null
 
     constructor(
         text: String,
         imageResId: Drawable? = null,
         background: Int,
         textColor: Int = Color.WHITE,
+        listener: OnUnderlayButtonClickListener? = null
     ) : this() {
         mText = text
         mImageResId = imageResId
         mBackground = background
         mTextColor = textColor
+        mListener = listener
 
         paint = Paint().apply { color = mBackground }
         textPaint = TextPaint().apply {
             color = mTextColor
             textSize = mTextSize
             textAlign = Paint.Align.LEFT
-            getTextBounds(mText, 0, mText.length, r)
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
 
+            getTextBounds(mText, 0, mText.length, r)
         }
     }
 
     fun onDraw(canvas: Canvas, rectF: RectF, pos: Int) {
-        Log.d("SwipeController", "onDraw: rectf_$rectF, pos_$pos")
+        // Log.d("SwipeController", "onDraw: rectf_$rectF, pos_$pos")
 
         canvas.apply {
             drawRect(rectF, paint)
@@ -85,4 +90,11 @@ class UnderlayButton() {
         }?.draw(canvas)
     }
 
+    fun onClick(x: Float, y: Float): Boolean {
+        if (mClickRegion?.contains(x, y)!!) {
+            mListener?.onUnderlayButtonClick(mPos)
+            return true
+        }
+        return false
+    }
 }

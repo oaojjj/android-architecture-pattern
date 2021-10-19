@@ -1,6 +1,7 @@
 package com.oaojjj.architecturepattern.adapter
 
 import android.content.Context
+import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,6 +27,10 @@ class TodoAdapter(private val mContext: Context, private val todoList: MutableLi
         fun bind(item: Todo) {
             cbTodo.isChecked = item.checked
             tvContents.text = item.content
+
+            // 취소선
+            if (cbTodo.isChecked) tvContents.paintFlags = tvContents.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+            else tvContents.paintFlags = 0
 
             cbTodo.setOnClickListener {
                 mTodoCheckBoxListener.onTodoCheckBoxClick(adapterPosition, cbTodo.isChecked)

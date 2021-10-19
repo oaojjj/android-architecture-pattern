@@ -4,19 +4,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
     tools:context=".frgment.AddTodoFragment">
 
     <EditText
+        android:layout_margin="16dp"
         android:id="@+id/et_todo_contents"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="@android:color/transparent"
         android:gravity="start"
         android:hint="할 일을 입력하세요!"
-        android:lines="7"
+        android:inputType="textMultiLine"
+        android:maxLines="5"
         android:paddingHorizontal="8dp"
         android:paddingVertical="8dp"
+        android:textColor="@android:color/black"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

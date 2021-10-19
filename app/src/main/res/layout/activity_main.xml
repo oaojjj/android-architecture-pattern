@@ -6,23 +6,44 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/white"
+            app:layout_scrollFlags="scroll|enterAlways"
+            app:title="할 일 목록" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
     <FrameLayout
         android:id="@+id/fl_container_main"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
 
     <com.google.android.material.bottomappbar.BottomAppBar
         android:id="@+id/bab_main"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom" />
+        android:layout_gravity="bottom"
+        android:backgroundTint="@color/colorPrimary"
+        app:hideOnScroll="true" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_main"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/add"
-        app:backgroundTint="@color/colorPrimaryDark"
+        app:backgroundTint="@color/colorFab"
+        app:fabCustomSize="64dp"
         app:layout_anchor="@id/bab_main"
+        app:maxImageSize="40dp"
         app:tint="@null" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
