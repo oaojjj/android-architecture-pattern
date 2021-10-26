@@ -45,7 +45,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         appBarLayout = binding.appBarLayout
 
         // model
-        Thread { TodoModel.setContext(applicationContext) }.start()
+        Thread { TodoModel.instantiate(applicationContext) }.start()
 
         // view, controller
         setContentView(binding.root)
