@@ -20,7 +20,7 @@ import android.view.View.OnTouchListener
 
 @SuppressLint("ClickableViewAccessibility")
 
-abstract class SwipeController(context: Context, var mRecyclerView: RecyclerView) :
+abstract class SwipeHelper(context: Context, var mRecyclerView: RecyclerView) :
     ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
     private val TAG: String = "SwipeController"
     private var buttonWidth = context.resources.getDimension(R.dimen.underlay_button_width)

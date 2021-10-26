@@ -21,11 +21,15 @@ import com.oaojjj.architecturepattern.model.TodoModel
 // 안드로이드에서 MVC 구조는 activity(or fragment)가 controller 와 view 의 역할을 수행한다.
 // view는 xml_layout 자체이다.
 class MainActivity : AppCompatActivity(), View.OnClickListener {
-    private var menuVisible: Boolean = false
     private lateinit var bottomAppBar: BottomAppBar
     private lateinit var appBarLayout: AppBarLayout
 
     private lateinit var binding: ActivityMainBinding
+
+    private var menuVisible: Boolean = false
+
+    // addFragment -> False
+    // activeListFragment -> true
     private var changeViewFlag = true
 
     // fragment instance
@@ -38,48 +42,39 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        // setting appbar
         setSupportActionBar(binding.toolbar)
         bottomAppBar = binding.babMain
         appBarLayout = binding.appBarLayout
 
-        // model
+        // Controller: Model 세팅(초기화)
         Thread { TodoModel.instantiate(applicationContext) }.start()
-
-        // view, controller
-        setContentView(binding.root)
 
         // set listener
         binding.fabMain.setOnClickListener(this)
 
+        // host Activity on Fragment
         createActiveListFragment()
     }
 
-    override fun onClick(view: View) {
-        Log.d("MainActivity", "onClick: ${supportFragmentManager.backStackEntryCount}")
-        when (changeViewFlag) {
-            true -> {
-                createAddTodoFragment()
-                changeBottomAnimation(R.drawable.check, BottomAppBar.FAB_ALIGNMENT_MODE_END)
-            }
-            false -> {
-                onFinishedAddTodo()
-                changeBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER)
-            }
-        }
-    }
-
+    /**
+     * View
+     * ActiveListFragment 생성
+     */
     private fun createActiveListFragment() {
         showOptionMenu(false)
-        supportFragmentManager.beginTransaction()
-            .add(R.id.fl_container_main, activeListFragment)
+        supportFragmentManager.beginTransaction().add(R.id.fl_container_main, activeListFragment)
             .commit()
     }
 
-    // Todo를 추가할 수 있는 Fragment 생성
+
+    /**
+     * View
+     * AddTodoFragment 생성
+     */
     private fun createAddTodoFragment() {
-        expendedAppBarLayout()
+        setExpandedAppBarLayout(true)
         showOptionMenu(true)
 
         addTodoFragment = AddTodoFragment().apply { finishedAddTodoListener = this }
@@ -95,16 +90,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         Log.d("main", "onAddTodo: ${supportFragmentManager.backStackEntryCount}")
     }
 
-    private fun onFinishedAddTodo() {
-        finishedAddTodoListener.onFinishedAddTodo()
-
-        supportFragmentManager.popBackStack(
-            "addTodoFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE
-        )
-    }
-
     /**
-     *  change bottom fab position(fab, bottomAbbBar)
+     * View
+     * change bottom fab position(fab, bottomAbbBar)
      */
     private fun changeBottomAnimation(ResId: Int, fabAlignmentMode: Int) {
         changeViewFlag = !changeViewFlag
@@ -119,6 +107,13 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     }
 
+    /**
+     * View
+     * 옵션 메뉴 조작
+     * menuVisible:
+     * true -> show optionMenu
+     * false -> hide optionMenu
+     */
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_todo, menu)
         val menuItem = menu?.findItem(R.id.save_todo)
@@ -132,6 +127,48 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
+    private fun showOptionMenu(isShow: Boolean) {
+        invalidateOptionsMenu()
+        menuVisible = isShow
+    }
+
+    /**
+     * View
+     * 상단 액션바, 하단 바텀바 조작
+     */
+    fun showBottomAppBar(isShow: Boolean) {
+        when (isShow) {
+            true -> bottomAppBar.behavior.slideUp(bottomAppBar)
+            false -> bottomAppBar.behavior.slideDown(bottomAppBar)
+        }
+    }
+
+    private fun setExpandedAppBarLayout(b: Boolean) {
+        appBarLayout.setExpanded(b)
+    }
+
+
+    /**
+     * Controller
+     * fab 클릭, 옵션 메뉴 클릭..
+     */
+
+    // fab 클릭 이벤트
+    override fun onClick(view: View) {
+        Log.d("MainActivity", "onClick: ${supportFragmentManager.backStackEntryCount}")
+        when (changeViewFlag) {
+            true -> {
+                createAddTodoFragment()
+                changeBottomAnimation(R.drawable.check, BottomAppBar.FAB_ALIGNMENT_MODE_END)
+            }
+            false -> {
+                onFinishedAddTodo()
+                changeBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER)
+            }
+        }
+    }
+
+    // option menu 클릭 이벤트
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {
@@ -140,43 +177,26 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             }
             R.id.save_todo -> {
                 onFinishedAddTodo()
-                changeBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER)
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
     }
 
-    // fragment에서 뒤로가기 눌렀을 때 호출된다.
-    // 현재는 AddTodoFragment 한개에서만 호출되서 따로 인터페이스 구현은 안해도 될듯?
+    private fun onFinishedAddTodo() {
+        finishedAddTodoListener.onFinishedAddTodo() // 데이터 추가 발생 -> Controller: Model 변경
+        supportFragmentManager.popBackStack(
+            "addTodoFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE
+        )
+
+        changeBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER)
+    }
+
+
+
     override fun onBackPressed() {
         if (!changeViewFlag)
             changeBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER)
         super.onBackPressed()
-    }
-
-    /**
-     * control appbar
-     * 상단 액션바, 하단 바텀바 - view 조작
-     */
-    fun showBottomAppBar() {
-        bottomAppBar.behavior.slideUp(bottomAppBar)
-    }
-
-    fun hideBottomAppBar() {
-        bottomAppBar.behavior.slideDown(bottomAppBar)
-    }
-
-    fun expendedAppBarLayout() {
-        appBarLayout.setExpanded(true)
-    }
-
-    fun collapsedAppBarLayout() {
-        appBarLayout.setExpanded(false)
-    }
-
-    fun showOptionMenu(isShow: Boolean) {
-        invalidateOptionsMenu()
-        menuVisible = isShow
     }
 }

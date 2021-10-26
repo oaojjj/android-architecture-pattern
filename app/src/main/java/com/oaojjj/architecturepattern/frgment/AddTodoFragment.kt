@@ -7,12 +7,11 @@ import android.os.Looper
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
-import com.oaojjj.architecturepattern.MainActivity
+import com.oaojjj.architecturepattern.R
 import com.oaojjj.architecturepattern.databinding.FragmentAddTodoBinding
 import com.oaojjj.architecturepattern.listener.OnFinishedAddTodoListener
 import com.oaojjj.architecturepattern.model.TodoModel
@@ -27,14 +26,6 @@ class AddTodoFragment : Fragment(), OnFinishedAddTodoListener {
     override fun onAttach(context: Context) {
         initToolbar()
         super.onAttach(context)
-    }
-
-    private fun initToolbar() {
-        supportActionBar = (requireActivity() as AppCompatActivity).supportActionBar.apply {
-            prevTitle = this?.title.toString()
-            this?.title = "할 일 추가"
-            this?.setDisplayHomeAsUpEnabled(true)
-        }
     }
 
     override fun onCreateView(
@@ -52,19 +43,25 @@ class AddTodoFragment : Fragment(), OnFinishedAddTodoListener {
         super.onViewCreated(view, savedInstanceState)
     }
 
+    // View
+    private fun initToolbar() {
+        supportActionBar = (requireActivity() as AppCompatActivity).supportActionBar.apply {
+            prevTitle = this?.title.toString()
+            this?.title = getString(R.string.todo_add)
+            this?.setDisplayHomeAsUpEnabled(true)
+        }
+    }
+
+    override fun onDestroyView() {
+        Util.hideInput(requireActivity().currentFocus)
+        supportActionBar?.title = prevTitle
+        supportActionBar?.setDisplayHomeAsUpEnabled(false)
+        super.onDestroyView()
+    }
+
+    // Controller: MainActivity 에서 넘어온 이벤트 -> Model 데이터 추가 요청
     override fun onFinishedAddTodo() {
         Log.d("AddTodoFragment_TAG", "onFinishedAddTodo: ${binding.etTodoContents.text}")
         Thread { TodoModel.addTodo(binding.etTodoContents.text.toString()) }.start()
-    }
-
-    override fun onDetach() {
-        Util.hideInput(requireActivity().currentFocus)
-        super.onDetach()
-    }
-
-    override fun onDestroy() {
-        supportActionBar?.title = prevTitle
-        supportActionBar?.setDisplayHomeAsUpEnabled(false)
-        super.onDestroy()
     }
 }
