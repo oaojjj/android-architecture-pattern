@@ -7,7 +7,7 @@ object TodoModel {
 
     private var db: TodoDao? = null
 
-    fun setContext(context: Context) {
+    fun instantiate(context: Context) {
         db = db ?: TodoDatabase.getInstance(context).todoDao().apply { db = this }
         mDataList = getAll()
     }
