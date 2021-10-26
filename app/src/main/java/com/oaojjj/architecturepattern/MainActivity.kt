@@ -47,6 +47,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         setSupportActionBar(binding.toolbar)
         bottomAppBar = binding.babMain
         appBarLayout = binding.appBarLayout
+        showOptionMenu(false)
 
         // Controller: Model 세팅(초기화)
         Thread { TodoModel.instantiate(applicationContext) }.start()
@@ -63,7 +64,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
      * ActiveListFragment 생성
      */
     private fun createActiveListFragment() {
-        showOptionMenu(false)
         supportFragmentManager.beginTransaction().add(R.id.fl_container_main, activeListFragment)
             .commit()
     }
@@ -75,7 +75,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
      */
     private fun createAddTodoFragment() {
         setExpandedAppBarLayout(true)
-        showOptionMenu(true)
 
         addTodoFragment = AddTodoFragment().apply { finishedAddTodoListener = this }
         supportFragmentManager.beginTransaction()
@@ -95,6 +94,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
      * change bottom fab position(fab, bottomAbbBar)
      */
     private fun changeBottomAnimation(ResId: Int, fabAlignmentMode: Int) {
+        showOptionMenu(changeViewFlag)
         changeViewFlag = !changeViewFlag
         binding.babMain.fabAlignmentMode = fabAlignmentMode
         Handler(Looper.getMainLooper()).apply {
@@ -191,7 +191,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
         changeBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER)
     }
-
 
 
     override fun onBackPressed() {
