@@ -1,4 +1,4 @@
-package com.oaojjj.architecturepattern
+package com.oaojjj.architecturepattern.main
 
 import android.os.Bundle
 import android.os.Handler
@@ -9,22 +9,25 @@ import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomappbar.BottomAppBar
+import com.oaojjj.architecturepattern.R
 import com.oaojjj.architecturepattern.databinding.ActivityMainBinding
-import com.oaojjj.architecturepattern.frgment.ActiveListFragment
 import com.oaojjj.architecturepattern.frgment.AddTodoFragment
+import com.oaojjj.architecturepattern.frgment.TodosFragment
 import com.oaojjj.architecturepattern.listener.OnFinishedAddTodoListener
 import com.oaojjj.architecturepattern.model.TodoModel
+import com.oaojjj.architecturepattern.todos.TodosPresenter
 
-// 안드로이드에서 MVC 구조는 activity(or fragment)가 controller 와 view 의 역할을 수행한다.
-// view는 xml_layout 자체이다.
-class MainActivity : AppCompatActivity(), View.OnClickListener {
+class MainActivity : AppCompatActivity(), MainContract.View, View.OnClickListener {
     private lateinit var bottomAppBar: BottomAppBar
     private lateinit var appBarLayout: AppBarLayout
 
     private lateinit var binding: ActivityMainBinding
+
+    private lateinit var todosPresenter: TodosPresenter
 
     private var menuVisible: Boolean = false
 
@@ -33,7 +36,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     private var changeViewFlag = true
 
     // fragment instance
-    private var activeListFragment = ActiveListFragment()
+    private var activeListFragment = TodosFragment()
     private lateinit var addTodoFragment: AddTodoFragment
 
     // listener
@@ -43,11 +46,12 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        //showOptionMenu(false)
 
+        // set up the toolbar, appbar ....
         setSupportActionBar(binding.toolbar)
         bottomAppBar = binding.babMain
         appBarLayout = binding.appBarLayout
-        showOptionMenu(false)
 
         // Controller: Model 세팅(초기화)
         Thread { TodoModel.instantiate(applicationContext) }.start()
@@ -56,23 +60,20 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         binding.fabMain.setOnClickListener(this)
 
         // host Activity on Fragment
-        createActiveListFragment()
+        createTodosFragment()
     }
 
-    /**
-     * View
-     * ActiveListFragment 생성
-     */
-    private fun createActiveListFragment() {
-        supportFragmentManager.beginTransaction().add(R.id.fl_container_main, activeListFragment)
+    private fun createTodosFragment() {
+        supportFragmentManager.beginTransaction()
+            .add(R.id.fl_container_main, activeListFragment)
             .commit()
+        todosPresenter = TodosPresenter().apply {
+            setView(activeListFragment)
+        }
     }
 
 
-    /**
-     * View
-     * AddTodoFragment 생성
-     */
+
     private fun createAddTodoFragment() {
         setExpandedAppBarLayout(true)
 
@@ -94,7 +95,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
      * change bottom fab position(fab, bottomAbbBar)
      */
     private fun changeBottomAnimation(ResId: Int, fabAlignmentMode: Int) {
-        showOptionMenu(changeViewFlag)
+        //showOptionMenu(changeViewFlag)
         changeViewFlag = !changeViewFlag
         binding.babMain.fabAlignmentMode = fabAlignmentMode
         Handler(Looper.getMainLooper()).apply {
@@ -114,7 +115,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
      * true -> show optionMenu
      * false -> hide optionMenu
      */
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+    /*override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_todo, menu)
         val menuItem = menu?.findItem(R.id.save_todo)
 
@@ -130,22 +131,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     private fun showOptionMenu(isShow: Boolean) {
         invalidateOptionsMenu()
         menuVisible = isShow
-    }
-
-    /**
-     * View
-     * 상단 액션바, 하단 바텀바 조작
-     */
-    fun showBottomAppBar(isShow: Boolean) {
-        when (isShow) {
-            true -> bottomAppBar.behavior.slideUp(bottomAppBar)
-            false -> bottomAppBar.behavior.slideDown(bottomAppBar)
-        }
-    }
-
-    private fun setExpandedAppBarLayout(b: Boolean) {
-        appBarLayout.setExpanded(b)
-    }
+    }*/
 
 
     /**
@@ -198,4 +184,30 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             changeBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER)
         super.onBackPressed()
     }
+
+
+    /**
+     * View
+     * 상단 액션바, 하단 바텀바 조작
+     */
+    override fun showBottomAppbar(isShow: Boolean) {
+        when (isShow) {
+            true -> bottomAppBar.behavior.slideUp(bottomAppBar)
+            false -> bottomAppBar.behavior.slideDown(bottomAppBar)
+        }
+    }
+
+    override fun setExpandedAppBarLayout(isExpended: Boolean) {
+        appBarLayout.setExpanded(isExpended)
+    }
+
+    /**
+     * View
+     * Fragment 표시
+     */
+    override fun showFragment(fragment: Fragment) {
+
+    }
+
+
 }
