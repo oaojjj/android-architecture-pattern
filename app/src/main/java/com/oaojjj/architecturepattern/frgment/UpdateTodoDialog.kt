@@ -1,16 +1,12 @@
 package com.oaojjj.architecturepattern.frgment
 
-import android.content.DialogInterface
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.*
 import androidx.fragment.app.DialogFragment
 import com.oaojjj.architecturepattern.R
 import com.oaojjj.architecturepattern.databinding.DialogUpdateTodoBinding
 import com.oaojjj.architecturepattern.listener.OnUpdateTodoListener
 import com.oaojjj.architecturepattern.model.TodoModel
-import com.oaojjj.architecturepattern.utils.Util
 
 class UpdateTodoDialog(var listener: OnUpdateTodoListener, var pos: Int) :
     DialogFragment(),
@@ -42,6 +38,7 @@ class UpdateTodoDialog(var listener: OnUpdateTodoListener, var pos: Int) :
         binding.btUpdateCancel.setOnClickListener(this)
     }
 
+    // Controller: 사용자가 업데이트 요청 -> Model에 업데이트 요청
     override fun onClick(view: View?) {
         if (view?.id == R.id.bt_update) {
             Thread {

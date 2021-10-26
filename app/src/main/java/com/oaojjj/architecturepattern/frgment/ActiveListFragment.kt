@@ -1,6 +1,5 @@
 package com.oaojjj.architecturepattern.frgment
 
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -18,7 +17,7 @@ import com.oaojjj.architecturepattern.adapter.TodoAdapter
 import com.oaojjj.architecturepattern.databinding.FragmentActiveListBinding
 import com.oaojjj.architecturepattern.model.TodoModel
 
-import com.oaojjj.architecturepattern.controller.SwipeController
+import com.oaojjj.architecturepattern.controller.SwipeHelper
 import com.oaojjj.architecturepattern.customview.UnderlayButton
 import com.oaojjj.architecturepattern.listener.OnTodoCheckBoxClickListener
 import com.oaojjj.architecturepattern.listener.OnUnderlayButtonClickListener
@@ -30,7 +29,6 @@ class ActiveListFragment : Fragment(), OnTodoCheckBoxClickListener {
 
     // itemTouchHelper
     private lateinit var itemTouchHelper: ItemTouchHelper
-
     private lateinit var mAdapter: TodoAdapter
 
     override fun onCreateView(
@@ -47,11 +45,10 @@ class ActiveListFragment : Fragment(), OnTodoCheckBoxClickListener {
         Log.d("ActiveListFragment_TAG", "onViewCreated: ")
         // init data, adapter
 
-        mAdapter =
-            TodoAdapter(requireContext(), TodoModel.getDataList())
-                .apply {
-                    setOnTodoCheckBoxListener(this@ActiveListFragment)
-                }
+        mAdapter = TodoAdapter(requireContext(), TodoModel.getDataList()).apply {
+            setOnTodoCheckBoxListener(this@ActiveListFragment)
+        }
+
         binding.rvTodo.let {
             it.adapter = mAdapter
             it.layoutManager = LinearLayoutManager(requireContext())
@@ -59,50 +56,54 @@ class ActiveListFragment : Fragment(), OnTodoCheckBoxClickListener {
         }
 
         // attach itemTouchHelper to recyclerview
-        itemTouchHelper =
-            ItemTouchHelper(object : SwipeController(requireContext(), binding.rvTodo) {
-                override fun instantiateUnderlayButton(
-                    vh: RecyclerView.ViewHolder,
-                    buttons: MutableList<UnderlayButton>
-                ) {
-                    buttons.add(
-                        UnderlayButton(
-                            text = "삭제",
-                            background = ContextCompat.getColor(
-                                requireContext(),
-                                R.color.colorDelete
-                            ),
-                            listener = object : OnUnderlayButtonClickListener {
-                                override fun onUnderlayButtonClick(pos: Int) {
-                                    onRemoveTodo(pos)
-                                }
+        itemTouchHelper = ItemTouchHelper(object : SwipeHelper(requireContext(), binding.rvTodo) {
+            override fun instantiateUnderlayButton(
+                vh: RecyclerView.ViewHolder,
+                buttons: MutableList<UnderlayButton>
+            ) {
+                buttons.add(
+                    UnderlayButton(
+                        text = "삭제",
+                        background = ContextCompat.getColor(
+                            requireContext(),
+                            R.color.colorDelete
+                        ),
+                        listener = object : OnUnderlayButtonClickListener {
+                            override fun onUnderlayButtonClick(pos: Int) {
+                                onRemoveTodo(pos)
                             }
-                        )
+                        }
                     )
-                    buttons.add(
-                        UnderlayButton(
-                            text = "수정",
-                            background = ContextCompat.getColor(
-                                requireContext(),
-                                R.color.colorEdit
-                            ),
-                            listener = object : OnUnderlayButtonClickListener {
-                                override fun onUnderlayButtonClick(pos: Int) {
-                                    UpdateTodoDialog(
-                                        object : OnUpdateTodoListener {
-                                            override fun onUpdateFinished() {
-                                                mAdapter.notifyItemChanged(pos)
-                                            }
-                                        }, pos
-                                    ).show(requireActivity().supportFragmentManager, null)
-                                }
+                )
+                buttons.add(
+                    UnderlayButton(
+                        text = "수정",
+                        background = ContextCompat.getColor(
+                            requireContext(),
+                            R.color.colorEdit
+                        ),
+                        listener = object : OnUnderlayButtonClickListener {
+                            override fun onUnderlayButtonClick(pos: Int) {
+                                showUpdateTodoDialog(pos)
                             }
-                        )
+                        }
                     )
-                }
+                )
+            }
 
-            })
+        })
         itemTouchHelper.attachToRecyclerView(binding.rvTodo)
+    }
+
+    // View
+    private fun showUpdateTodoDialog(pos: Int) {
+        UpdateTodoDialog(
+            object : OnUpdateTodoListener {
+                override fun onUpdateFinished() {
+                    mAdapter.notifyItemChanged(pos)
+                }
+            }, pos
+        ).show(parentFragmentManager, null)
     }
 
     override fun onResume() {
@@ -113,8 +114,8 @@ class ActiveListFragment : Fragment(), OnTodoCheckBoxClickListener {
     /**
      * 사용자 이벤트 발생 하고 호출되는 메소드(callback)
      * add, remove, update ...등
-     * controller -> Model 에 데이터 추가 요청
-     * Model 에서 데이터를 조작 후 View 는 UI만 갱신
+     * controller -> Model 에 요청
+     * Model 에서 데이터를 조작 후 View 는 UI만 갱신(observable)
      */
 
     // 데이터 삭제
@@ -126,7 +127,7 @@ class ActiveListFragment : Fragment(), OnTodoCheckBoxClickListener {
                 mAdapter.notifyItemRangeChanged(pos, TodoModel.size())
             }
         }.start()
-        (requireActivity() as MainActivity).showBottomAppBar()
+        (requireActivity() as MainActivity).showBottomAppBar(true)
     }
 
     // 데이터 수정(체크 유무)
