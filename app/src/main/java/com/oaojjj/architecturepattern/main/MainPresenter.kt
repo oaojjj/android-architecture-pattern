@@ -1,10 +1,16 @@
 package com.oaojjj.architecturepattern.main
 
-class MainPresenter : MainContract.Presenter {
-    private lateinit var mainView: MainContract.View
-    override fun setView(view: MainContract.View) {
-        mainView = view
+import com.oaojjj.architecturepattern.BasePresenter
+import com.oaojjj.architecturepattern.todos.TodosContract
+
+class MainPresenter(val mainView: MainContract.View) : MainContract.Presenter {
+    private lateinit var todosPresenter: TodosContract.Presenter
+
+    override fun setTodosPresenter(presenter: BasePresenter) {
+        todosPresenter = presenter as TodosContract.Presenter
+
     }
+
 
     override fun addTodo() {
     }

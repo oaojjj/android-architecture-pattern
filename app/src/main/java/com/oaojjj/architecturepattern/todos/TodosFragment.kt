@@ -1,15 +1,15 @@
-package com.oaojjj.architecturepattern.frgment
+package com.oaojjj.architecturepattern.todos
 
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.oaojjj.architecturepattern.main.MainActivity
 import com.oaojjj.architecturepattern.R
 import com.oaojjj.architecturepattern.adapter.TodoAdapter
 import com.oaojjj.architecturepattern.model.TodoModel
@@ -17,16 +17,16 @@ import com.oaojjj.architecturepattern.model.TodoModel
 import com.oaojjj.architecturepattern.controller.SwipeHelper
 import com.oaojjj.architecturepattern.customview.UnderlayButton
 import com.oaojjj.architecturepattern.databinding.FragmentTodosBinding
+import com.oaojjj.architecturepattern.frgment.UpdateTodoDialog
 import com.oaojjj.architecturepattern.listener.OnTodoCheckBoxClickListener
 import com.oaojjj.architecturepattern.listener.OnUnderlayButtonClickListener
 import com.oaojjj.architecturepattern.listener.OnUpdateTodoListener
 import com.oaojjj.architecturepattern.model.Todo
-import com.oaojjj.architecturepattern.todos.TodosContract
 
 
 class TodosFragment : Fragment(), TodosContract.View, OnTodoCheckBoxClickListener {
     private lateinit var binding: FragmentTodosBinding
-    private lateinit var presenter: TodosContract.Presenter
+    override lateinit var presenter: TodosContract.Presenter
 
     // itemTouchHelper
     private lateinit var itemTouchHelper: ItemTouchHelper
@@ -36,16 +36,21 @@ class TodosFragment : Fragment(), TodosContract.View, OnTodoCheckBoxClickListene
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        Log.d("ActiveListFragment_TAG", "onCreateView: ")
+        Log.d("TodosFragment", "onCreateView: ")
         binding = FragmentTodosBinding.inflate(inflater, container, false)
+
+        // set up the toolbar
+        val supportActionbar = (requireActivity() as AppCompatActivity).supportActionBar
+        setToolbar(supportActionbar, getString(R.string.todo_list), false)
+
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d("ActiveListFragment_TAG", "onViewCreated: ")
-        // init data, adapter
+        Log.d("TodosFragment", "onViewCreated: ")
 
+        // init data, adapter
         mAdapter = TodoAdapter(requireContext(), TodoModel.getDataList()).apply {
             setOnTodoCheckBoxListener(this@TodosFragment)
         }
@@ -94,11 +99,6 @@ class TodosFragment : Fragment(), TodosContract.View, OnTodoCheckBoxClickListene
 
         })
         itemTouchHelper.attachToRecyclerView(binding.rvTodo)
-    }
-
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_todo, menu)
     }
 
 

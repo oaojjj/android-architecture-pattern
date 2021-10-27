@@ -13,12 +13,12 @@
         android:fitsSystemWindows="true">
 
         <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
+            android:id="@+id/toolbar_main"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@android:color/white"
             app:layout_scrollFlags="scroll|enterAlways"
-            app:title="할 일 목록" />
+           />
 
     </com.google.android.material.appbar.AppBarLayout>
 

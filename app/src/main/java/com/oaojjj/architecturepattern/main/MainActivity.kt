@@ -4,30 +4,24 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomappbar.BottomAppBar
 import com.oaojjj.architecturepattern.R
 import com.oaojjj.architecturepattern.databinding.ActivityMainBinding
-import com.oaojjj.architecturepattern.frgment.AddTodoFragment
-import com.oaojjj.architecturepattern.frgment.TodosFragment
+import com.oaojjj.architecturepattern.addtodo.AddTodoFragment
+import com.oaojjj.architecturepattern.todos.TodosFragment
 import com.oaojjj.architecturepattern.listener.OnFinishedAddTodoListener
-import com.oaojjj.architecturepattern.model.TodoModel
-import com.oaojjj.architecturepattern.todos.TodosPresenter
 
 class MainActivity : AppCompatActivity(), MainContract.View, View.OnClickListener {
-    private lateinit var bottomAppBar: BottomAppBar
-    private lateinit var appBarLayout: AppBarLayout
+
 
     private lateinit var binding: ActivityMainBinding
 
-    private lateinit var todosPresenter: TodosPresenter
+    override lateinit var presenter: MainContract.Presenter
 
     private var menuVisible: Boolean = false
 
@@ -48,18 +42,16 @@ class MainActivity : AppCompatActivity(), MainContract.View, View.OnClickListene
         setContentView(binding.root)
         //showOptionMenu(false)
 
-        // set up the toolbar, appbar ....
-        setSupportActionBar(binding.toolbar)
-        bottomAppBar = binding.babMain
-        appBarLayout = binding.appBarLayout
+        // set up the toolbar
+        setSupportActionBar(binding.toolbarMain)
 
-        // Controller: Model 세팅(초기화)
-        Thread { TodoModel.instantiate(applicationContext) }.start()
+        // create the presenter
+        presenter = MainPresenter(this)
 
         // set listener
         binding.fabMain.setOnClickListener(this)
 
-        // host Activity on Fragment
+        // hosting TodosFragment on MainActivity
         createTodosFragment()
     }
 
@@ -67,11 +59,7 @@ class MainActivity : AppCompatActivity(), MainContract.View, View.OnClickListene
         supportFragmentManager.beginTransaction()
             .add(R.id.fl_container_main, activeListFragment)
             .commit()
-        todosPresenter = TodosPresenter().apply {
-            setView(activeListFragment)
-        }
     }
-
 
 
     private fun createAddTodoFragment() {
@@ -94,9 +82,8 @@ class MainActivity : AppCompatActivity(), MainContract.View, View.OnClickListene
      * View
      * change bottom fab position(fab, bottomAbbBar)
      */
-    private fun changeBottomAnimation(ResId: Int, fabAlignmentMode: Int) {
-        //showOptionMenu(changeViewFlag)
-        changeViewFlag = !changeViewFlag
+    override fun showBottomAnimation(ResId: Int, fabAlignmentMode: Int) {
+        // changeViewFlag = !changeViewFlag
         binding.babMain.fabAlignmentMode = fabAlignmentMode
         Handler(Looper.getMainLooper()).apply {
             postDelayed({
@@ -105,7 +92,6 @@ class MainActivity : AppCompatActivity(), MainContract.View, View.OnClickListene
                 )
             }, 300)
         }
-
     }
 
     /**
@@ -145,29 +131,29 @@ class MainActivity : AppCompatActivity(), MainContract.View, View.OnClickListene
         when (changeViewFlag) {
             true -> {
                 createAddTodoFragment()
-                changeBottomAnimation(R.drawable.check, BottomAppBar.FAB_ALIGNMENT_MODE_END)
+                showBottomAnimation(R.drawable.check, BottomAppBar.FAB_ALIGNMENT_MODE_END)
             }
             false -> {
                 onFinishedAddTodo()
-                changeBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER)
+                showBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER)
             }
         }
     }
 
-    // option menu 클릭 이벤트
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            android.R.id.home -> {
-                onBackPressed()
-                true
-            }
-            R.id.save_todo -> {
-                onFinishedAddTodo()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
+//    // option menu 클릭 이벤트
+//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+//        return when (item.itemId) {
+//            android.R.id.home -> {
+//                onBackPressed()
+//                true
+//            }
+//            R.id.save_todo -> {
+//                onFinishedAddTodo()
+//                true
+//            }
+//            else -> super.onOptionsItemSelected(item)
+//        }
+//    }
 
     private fun onFinishedAddTodo() {
         finishedAddTodoListener.onFinishedAddTodo() // 데이터 추가 발생 -> Controller: Model 변경
@@ -175,13 +161,13 @@ class MainActivity : AppCompatActivity(), MainContract.View, View.OnClickListene
             "addTodoFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE
         )
 
-        changeBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER)
+        showBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER)
     }
 
 
     override fun onBackPressed() {
         if (!changeViewFlag)
-            changeBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER)
+            showBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER)
         super.onBackPressed()
     }
 
@@ -191,14 +177,15 @@ class MainActivity : AppCompatActivity(), MainContract.View, View.OnClickListene
      * 상단 액션바, 하단 바텀바 조작
      */
     override fun showBottomAppbar(isShow: Boolean) {
+        val bottomAppbar = binding.babMain
         when (isShow) {
-            true -> bottomAppBar.behavior.slideUp(bottomAppBar)
-            false -> bottomAppBar.behavior.slideDown(bottomAppBar)
+            true -> bottomAppbar.behavior.slideUp(bottomAppbar)
+            false -> bottomAppbar.behavior.slideDown(bottomAppbar)
         }
     }
 
     override fun setExpandedAppBarLayout(isExpended: Boolean) {
-        appBarLayout.setExpanded(isExpended)
+        binding.appBarLayout.setExpanded(isExpended)
     }
 
     /**
