@@ -27,7 +27,7 @@ class AddTodoFragment : Fragment(), AddTodoContract.View, OnFinishedAddTodoListe
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d("AddTodoFragment", "onCreate: ")
-
+        presenter = AddTodoPresenter(this)
     }
 
     override fun onCreateView(

@@ -3,11 +3,9 @@ package com.oaojjj.architecturepattern.main
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.bottomappbar.BottomAppBar
 import com.oaojjj.architecturepattern.R
@@ -17,21 +15,15 @@ import com.oaojjj.architecturepattern.todos.TodosFragment
 import com.oaojjj.architecturepattern.listener.OnFinishedAddTodoListener
 
 class MainActivity : AppCompatActivity(), MainContract.View, View.OnClickListener {
-
-
     private lateinit var binding: ActivityMainBinding
+
+    // fragment
+    private lateinit var todosFragment: TodosFragment
+    private lateinit var addTodoFragment: AddTodoFragment
 
     override lateinit var presenter: MainContract.Presenter
 
-    private var menuVisible: Boolean = false
-
-    // addFragment -> False
-    // activeListFragment -> true
-    private var changeViewFlag = true
-
-    // fragment instance
-    private var activeListFragment = TodosFragment()
-    private lateinit var addTodoFragment: AddTodoFragment
+    override var isChangeFragment: Boolean = false
 
     // listener
     private lateinit var finishedAddTodoListener: OnFinishedAddTodoListener
@@ -40,7 +32,6 @@ class MainActivity : AppCompatActivity(), MainContract.View, View.OnClickListene
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        //showOptionMenu(false)
 
         // set up the toolbar
         setSupportActionBar(binding.toolbarMain)
@@ -48,42 +39,23 @@ class MainActivity : AppCompatActivity(), MainContract.View, View.OnClickListene
         // create the presenter
         presenter = MainPresenter(this)
 
-        // set listener
+        // set floating button listener
         binding.fabMain.setOnClickListener(this)
 
-        // hosting TodosFragment on MainActivity
-        createTodosFragment()
-    }
-
-    private fun createTodosFragment() {
-        supportFragmentManager.beginTransaction()
-            .add(R.id.fl_container_main, activeListFragment)
-            .commit()
-    }
-
-
-    private fun createAddTodoFragment() {
-        setExpandedAppBarLayout(true)
-
+        // create fragment
         addTodoFragment = AddTodoFragment().apply { finishedAddTodoListener = this }
-        supportFragmentManager.beginTransaction()
-            .addToBackStack("addTodoFragment")
-            .setCustomAnimations(
-                R.anim.enter_from_left,
-                R.anim.exit_to_right,
-                R.anim.enter_from_right,
-                R.anim.exit_to_left
-            ).replace(R.id.fl_container_main, addTodoFragment).commit()
+        todosFragment = TodosFragment()
 
-        Log.d("main", "onAddTodo: ${supportFragmentManager.backStackEntryCount}")
+        // hosting TodosFragment on MainActivity
+        showTodosFragment()
     }
+
 
     /**
      * View
      * change bottom fab position(fab, bottomAbbBar)
      */
     override fun showBottomAnimation(ResId: Int, fabAlignmentMode: Int) {
-        // changeViewFlag = !changeViewFlag
         binding.babMain.fabAlignmentMode = fabAlignmentMode
         Handler(Looper.getMainLooper()).apply {
             postDelayed({
@@ -95,45 +67,18 @@ class MainActivity : AppCompatActivity(), MainContract.View, View.OnClickListene
     }
 
     /**
-     * View
-     * 옵션 메뉴 조작
-     * menuVisible:
-     * true -> show optionMenu
-     * false -> hide optionMenu
-     */
-    /*override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_todo, menu)
-        val menuItem = menu?.findItem(R.id.save_todo)
-
-        return if (menuVisible) {
-            menuItem?.isVisible = true
-            true
-        } else {
-            menuItem?.isVisible = false
-            false
-        }
-    }
-
-    private fun showOptionMenu(isShow: Boolean) {
-        invalidateOptionsMenu()
-        menuVisible = isShow
-    }*/
-
-
-    /**
-     * Controller
      * fab 클릭, 옵션 메뉴 클릭..
      */
 
     // fab 클릭 이벤트
     override fun onClick(view: View) {
-        Log.d("MainActivity", "onClick: ${supportFragmentManager.backStackEntryCount}")
-        when (changeViewFlag) {
-            true -> {
-                createAddTodoFragment()
+        when (isChangeFragment) {
+            false -> {
+                showAddTodoFragment()
                 showBottomAnimation(R.drawable.check, BottomAppBar.FAB_ALIGNMENT_MODE_END)
             }
-            false -> {
+            true -> {
+                setExpandedAppBarLayout(true)
                 onFinishedAddTodo()
                 showBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER)
             }
@@ -164,13 +109,30 @@ class MainActivity : AppCompatActivity(), MainContract.View, View.OnClickListene
         showBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER)
     }
 
-
     override fun onBackPressed() {
-        if (!changeViewFlag)
+        if (isChangeFragment)
             showBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER)
         super.onBackPressed()
     }
 
+    /**
+     * View - Fragment 표시
+     */
+    override fun showTodosFragment() {
+        supportFragmentManager.beginTransaction().add(R.id.fl_container_main, todosFragment)
+            .commit()
+    }
+
+    override fun showAddTodoFragment() {
+        supportFragmentManager.beginTransaction()
+            .addToBackStack("addTodoFragment")
+            .setCustomAnimations(
+                R.anim.enter_from_left,
+                R.anim.exit_to_right,
+                R.anim.enter_from_right,
+                R.anim.exit_to_left
+            ).replace(R.id.fl_container_main, addTodoFragment).commit()
+    }
 
     /**
      * View
@@ -187,14 +149,5 @@ class MainActivity : AppCompatActivity(), MainContract.View, View.OnClickListene
     override fun setExpandedAppBarLayout(isExpended: Boolean) {
         binding.appBarLayout.setExpanded(isExpended)
     }
-
-    /**
-     * View
-     * Fragment 표시
-     */
-    override fun showFragment(fragment: Fragment) {
-
-    }
-
 
 }

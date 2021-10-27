@@ -32,6 +32,11 @@ class TodosFragment : Fragment(), TodosContract.View, OnTodoCheckBoxClickListene
     private lateinit var itemTouchHelper: ItemTouchHelper
     private lateinit var mAdapter: TodoAdapter
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        presenter = TodosPresenter(this)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?

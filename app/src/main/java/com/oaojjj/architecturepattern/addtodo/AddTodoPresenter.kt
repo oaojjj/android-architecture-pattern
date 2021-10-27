@@ -1,6 +1,6 @@
 package com.oaojjj.architecturepattern.addtodo
 
 
-class AddTodoPresenter(val addTodoView: AddTodoContract.View) : AddTodoContract.Presenter {
+class AddTodoPresenter(val addTodoView: AddTodoContract.View?) : AddTodoContract.Presenter {
 
 }

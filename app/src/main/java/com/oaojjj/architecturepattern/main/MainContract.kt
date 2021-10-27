@@ -1,12 +1,13 @@
 package com.oaojjj.architecturepattern.main
 
-import androidx.fragment.app.Fragment
 import com.oaojjj.architecturepattern.BasePresenter
 import com.oaojjj.architecturepattern.BaseView
 
 interface MainContract {
     interface View : BaseView<Presenter> {
-        fun showFragment(fragment: Fragment)
+        var isChangeFragment: Boolean
+        fun showTodosFragment()
+        fun showAddTodoFragment()
         fun showBottomAppbar(isShow: Boolean)
         fun setExpandedAppBarLayout(isExpended: Boolean)
         fun showBottomAnimation(ResId: Int, fabAlignmentMode: Int)
@@ -14,6 +15,5 @@ interface MainContract {
 
     interface Presenter : BasePresenter {
         fun setTodosPresenter(presenter: BasePresenter)
-        fun addTodo()
     }
 }
