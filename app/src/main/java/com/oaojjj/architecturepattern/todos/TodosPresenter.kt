@@ -1,4 +1,4 @@
 package com.oaojjj.architecturepattern.todos
 
-class TodosPresenter(val todosView: TodosContract.View?) : TodosContract.Presenter {
+class TodosPresenter(val view: TodosContract.View?) : TodosContract.Presenter {
 }

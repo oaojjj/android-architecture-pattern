@@ -1,4 +1,4 @@
-package com.oaojjj.architecturepattern.addtodo
+package com.oaojjj.architecturepattern.addedittodo
 
 import android.content.Context
 import android.os.Bundle
@@ -9,15 +9,14 @@ import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.oaojjj.architecturepattern.R
-import com.oaojjj.architecturepattern.databinding.FragmentAddTodoBinding
+import com.oaojjj.architecturepattern.databinding.FragmentAddEditTodoBinding
 import com.oaojjj.architecturepattern.listener.OnFinishedAddTodoListener
 import com.oaojjj.architecturepattern.model.TodoModel
 import com.oaojjj.architecturepattern.utils.Util
 
-
-class AddTodoFragment : Fragment(), AddTodoContract.View, OnFinishedAddTodoListener {
-    private lateinit var binding: FragmentAddTodoBinding
-    override lateinit var presenter: AddTodoContract.Presenter
+class AddEditTodoFragment : Fragment(), AddEditTodoContract.View, OnFinishedAddTodoListener {
+    private lateinit var binding: FragmentAddEditTodoBinding
+    override lateinit var presenter: AddEditTodoContract.Presenter
 
     override fun onAttach(context: Context) {
         setHasOptionsMenu(true)
@@ -27,14 +26,13 @@ class AddTodoFragment : Fragment(), AddTodoContract.View, OnFinishedAddTodoListe
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d("AddTodoFragment", "onCreate: ")
-        presenter = AddTodoPresenter(this)
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentAddTodoBinding.inflate(inflater, container, false)
+        binding = FragmentAddEditTodoBinding.inflate(inflater, container, false)
 
         // set up the toolbar
         val supportActionbar = (requireActivity() as AppCompatActivity).supportActionBar

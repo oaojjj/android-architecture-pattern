@@ -14,13 +14,11 @@ import com.oaojjj.architecturepattern.R
 import com.oaojjj.architecturepattern.adapter.TodoAdapter
 import com.oaojjj.architecturepattern.model.TodoModel
 
-import com.oaojjj.architecturepattern.controller.SwipeHelper
+import com.oaojjj.architecturepattern.helper.SwipeHelper
 import com.oaojjj.architecturepattern.customview.UnderlayButton
 import com.oaojjj.architecturepattern.databinding.FragmentTodosBinding
-import com.oaojjj.architecturepattern.frgment.UpdateTodoDialog
 import com.oaojjj.architecturepattern.listener.OnTodoCheckBoxClickListener
 import com.oaojjj.architecturepattern.listener.OnUnderlayButtonClickListener
-import com.oaojjj.architecturepattern.listener.OnUpdateTodoListener
 import com.oaojjj.architecturepattern.model.Todo
 
 
@@ -34,7 +32,6 @@ class TodosFragment : Fragment(), TodosContract.View, OnTodoCheckBoxClickListene
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        presenter = TodosPresenter(this)
     }
 
     override fun onCreateView(
@@ -109,13 +106,13 @@ class TodosFragment : Fragment(), TodosContract.View, OnTodoCheckBoxClickListene
 
     // View
     private fun showUpdateTodoDialog(pos: Int) {
-        UpdateTodoDialog(
+       /* UpdateTodoDialog(
             object : OnUpdateTodoListener {
                 override fun onUpdateFinished() {
                     mAdapter.notifyItemChanged(pos)
                 }
             }, pos
-        ).show(parentFragmentManager, null)
+        ).show(parentFragmentManager, null)*/
     }
 
     override fun onResume() {

@@ -6,27 +6,29 @@ import android.os.Looper
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.FragmentManager
 import com.google.android.material.bottomappbar.BottomAppBar
 import com.oaojjj.architecturepattern.R
 import com.oaojjj.architecturepattern.databinding.ActivityMainBinding
-import com.oaojjj.architecturepattern.addtodo.AddTodoFragment
+import com.oaojjj.architecturepattern.addedittodo.AddEditTodoFragment
+import com.oaojjj.architecturepattern.addedittodo.AddEditTodoPresenter
 import com.oaojjj.architecturepattern.todos.TodosFragment
 import com.oaojjj.architecturepattern.listener.OnFinishedAddTodoListener
+import com.oaojjj.architecturepattern.todos.TodosPresenter
 
 class MainActivity : AppCompatActivity(), MainContract.View, View.OnClickListener {
     private lateinit var binding: ActivityMainBinding
 
     // fragment
     private lateinit var todosFragment: TodosFragment
-    private lateinit var addTodoFragment: AddTodoFragment
+    private lateinit var addEditTodoFragment: AddEditTodoFragment
 
     override lateinit var presenter: MainContract.Presenter
 
+    /**
+     * true -> todosFragment
+     * false -> addEditTodoFragment
+     */
     override var isChangeFragment: Boolean = false
-
-    // listener
-    private lateinit var finishedAddTodoListener: OnFinishedAddTodoListener
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,20 +38,24 @@ class MainActivity : AppCompatActivity(), MainContract.View, View.OnClickListene
         // set up the toolbar
         setSupportActionBar(binding.toolbarMain)
 
+        // create view(fragment)
+        addEditTodoFragment = AddEditTodoFragment()
+        todosFragment = TodosFragment()
+
         // create the presenter
-        presenter = MainPresenter(this)
+        presenter = MainPresenter(view = this).apply {
+            setFragmentPresenter(
+                TodosPresenter(view = todosFragment),
+                AddEditTodoPresenter(view = addEditTodoFragment)
+            )
+        }
 
         // set floating button listener
         binding.fabMain.setOnClickListener(this)
 
-        // create fragment
-        addTodoFragment = AddTodoFragment().apply { finishedAddTodoListener = this }
-        todosFragment = TodosFragment()
-
         // hosting TodosFragment on MainActivity
         showTodosFragment()
     }
-
 
     /**
      * View
@@ -67,55 +73,6 @@ class MainActivity : AppCompatActivity(), MainContract.View, View.OnClickListene
     }
 
     /**
-     * fab 클릭, 옵션 메뉴 클릭..
-     */
-
-    // fab 클릭 이벤트
-    override fun onClick(view: View) {
-        when (isChangeFragment) {
-            false -> {
-                showAddTodoFragment()
-                showBottomAnimation(R.drawable.check, BottomAppBar.FAB_ALIGNMENT_MODE_END)
-            }
-            true -> {
-                setExpandedAppBarLayout(true)
-                onFinishedAddTodo()
-                showBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER)
-            }
-        }
-    }
-
-//    // option menu 클릭 이벤트
-//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-//        return when (item.itemId) {
-//            android.R.id.home -> {
-//                onBackPressed()
-//                true
-//            }
-//            R.id.save_todo -> {
-//                onFinishedAddTodo()
-//                true
-//            }
-//            else -> super.onOptionsItemSelected(item)
-//        }
-//    }
-
-    private fun onFinishedAddTodo() {
-        finishedAddTodoListener.onFinishedAddTodo() // 데이터 추가 발생 -> Controller: Model 변경
-        supportFragmentManager.popBackStack(
-            "addTodoFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE
-        )
-
-        showBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER)
-    }
-
-    override fun onBackPressed() {
-        if (isChangeFragment)
-            showBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER)
-        super.onBackPressed()
-    }
-
-    /**
      * View - Fragment 표시
      */
     override fun showTodosFragment() {
@@ -123,15 +80,15 @@ class MainActivity : AppCompatActivity(), MainContract.View, View.OnClickListene
             .commit()
     }
 
-    override fun showAddTodoFragment() {
+    override fun showAddEditTodoFragment() {
         supportFragmentManager.beginTransaction()
-            .addToBackStack("addTodoFragment")
+            .addToBackStack("addEditTodoFragment")
             .setCustomAnimations(
                 R.anim.enter_from_left,
                 R.anim.exit_to_right,
                 R.anim.enter_from_right,
                 R.anim.exit_to_left
-            ).replace(R.id.fl_container_main, addTodoFragment).commit()
+            ).replace(R.id.fl_container_main, addEditTodoFragment).commit()
     }
 
     /**
@@ -150,4 +107,20 @@ class MainActivity : AppCompatActivity(), MainContract.View, View.OnClickListene
         binding.appBarLayout.setExpanded(isExpended)
     }
 
+
+    /**
+     * fab 클릭, 옵션 메뉴 클릭..
+     * View 에서 사용자 이벤트 받아서 presenter에 전달
+     * 근데 굳이 이럴 필요가 있을까? 그냥 바로 fragment 생성하고 애니메이션 바꾸면 안되는 것인가?
+     * 어차피 둘다 view에 관련된 조작인데
+     */
+    override fun onClick(view: View) {
+        when (isChangeFragment) {
+            false -> presenter.addTodo()
+            true -> {
+                setExpandedAppBarLayout(true)
+                showBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER)
+            }
+        }
+    }
 }

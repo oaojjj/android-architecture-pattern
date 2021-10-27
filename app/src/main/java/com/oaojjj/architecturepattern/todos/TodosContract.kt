@@ -10,6 +10,5 @@ interface TodosContract {
     }
 
     interface Presenter : BasePresenter {
-
     }
 }

@@ -1,4 +1,4 @@
-package com.oaojjj.architecturepattern.controller
+package com.oaojjj.architecturepattern.helper
 
 import android.annotation.SuppressLint
 import android.content.Context

@@ -1,10 +1,10 @@
-package com.oaojjj.architecturepattern.addtodo
+package com.oaojjj.architecturepattern.addedittodo
 
 import com.oaojjj.architecturepattern.BasePresenter
 import com.oaojjj.architecturepattern.BaseView
 
 
-interface AddTodoContract {
+interface AddEditTodoContract {
     interface View : BaseView<Presenter> {
 
     }
