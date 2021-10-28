@@ -1,5 +1,6 @@
 package com.oaojjj.architecturepattern.todos
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -30,7 +31,12 @@ class TodosFragment : Fragment(), TodosContract.View, OnTodoCheckBoxClickListene
     private lateinit var itemTouchHelper: ItemTouchHelper
     private lateinit var mAdapter: TodoAdapter
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d("lifecycle_TodosFragment", "onCreate: ")
         super.onCreate(savedInstanceState)
     }
 
@@ -38,7 +44,7 @@ class TodosFragment : Fragment(), TodosContract.View, OnTodoCheckBoxClickListene
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        Log.d("TodosFragment", "onCreateView: ")
+        Log.d("lifecycle_TodosFragment", "onCreateView: ")
         binding = FragmentTodosBinding.inflate(inflater, container, false)
 
         // set up the toolbar
@@ -50,7 +56,7 @@ class TodosFragment : Fragment(), TodosContract.View, OnTodoCheckBoxClickListene
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d("TodosFragment", "onViewCreated: ")
+        Log.d("lifecycle_TodosFragment", "onViewCreated: ")
 
         // init data, adapter
         mAdapter = TodoAdapter(requireContext(), TodoModel.getDataList()).apply {
@@ -103,22 +109,62 @@ class TodosFragment : Fragment(), TodosContract.View, OnTodoCheckBoxClickListene
         itemTouchHelper.attachToRecyclerView(binding.rvTodo)
     }
 
+    override fun onStart() {
+        Log.d("lifecycle_TodosFragment", "onStart: ")
+        super.onStart()
+    }
 
-    // View
-    private fun showUpdateTodoDialog(pos: Int) {
-       /* UpdateTodoDialog(
-            object : OnUpdateTodoListener {
-                override fun onUpdateFinished() {
-                    mAdapter.notifyItemChanged(pos)
-                }
-            }, pos
-        ).show(parentFragmentManager, null)*/
+    override fun onSaveInstanceState(outState: Bundle) {
+        Log.d("lifecycle_TodosFragment", "onSaveInstanceState: ")
+        super.onSaveInstanceState(outState)
     }
 
     override fun onResume() {
-        requireActivity().title = getString(R.string.todo_list)
+        Log.d("lifecycle_TodosFragment", "onResume: ")
         super.onResume()
     }
+
+    override fun onPause() {
+        Log.d("lifecycle_TodosFragment", "onPause: ")
+        super.onPause()
+    }
+
+    override fun onStop() {
+        Log.d("lifecycle_TodosFragment", "onStop: ")
+        super.onStop()
+    }
+
+    override fun onDestroyView() {
+        Log.d("lifecycle_TodosFragment", "onDestroyView: ")
+        super.onDestroyView()
+    }
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        Log.d("lifecycle_TodosFragment", "onViewStateRestored: ")
+        super.onViewStateRestored(savedInstanceState)
+    }
+
+    override fun onDestroy() {
+        Log.d("lifecycle_TodosFragment", "onDestroy: ")
+        super.onDestroy()
+    }
+
+    override fun onDetach() {
+        Log.d("lifecycle_TodosFragment", "onDetach: ")
+        super.onDetach()
+    }
+
+    // View
+    private fun showUpdateTodoDialog(pos: Int) {
+        /* UpdateTodoDialog(
+             object : OnUpdateTodoListener {
+                 override fun onUpdateFinished() {
+                     mAdapter.notifyItemChanged(pos)
+                 }
+             }, pos
+         ).show(parentFragmentManager, null)*/
+    }
+
 
     /**
      * 사용자 이벤트 발생 하고 호출되는 메소드(callback)

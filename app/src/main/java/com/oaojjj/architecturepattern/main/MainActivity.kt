@@ -3,6 +3,7 @@ package com.oaojjj.architecturepattern.main
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -12,7 +13,6 @@ import com.oaojjj.architecturepattern.databinding.ActivityMainBinding
 import com.oaojjj.architecturepattern.addedittodo.AddEditTodoFragment
 import com.oaojjj.architecturepattern.addedittodo.AddEditTodoPresenter
 import com.oaojjj.architecturepattern.todos.TodosFragment
-import com.oaojjj.architecturepattern.listener.OnFinishedAddTodoListener
 import com.oaojjj.architecturepattern.todos.TodosPresenter
 
 class MainActivity : AppCompatActivity(), MainContract.View, View.OnClickListener {
@@ -32,6 +32,7 @@ class MainActivity : AppCompatActivity(), MainContract.View, View.OnClickListene
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d("lifecycle_MainActivity", "onCreate: ")
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -39,8 +40,14 @@ class MainActivity : AppCompatActivity(), MainContract.View, View.OnClickListene
         setSupportActionBar(binding.toolbarMain)
 
         // create view(fragment)
-        addEditTodoFragment = AddEditTodoFragment()
-        todosFragment = TodosFragment()
+        addEditTodoFragment =
+            supportFragmentManager.findFragmentByTag(MainContract.View.ADD_EDIT_TODO_FRAGMENT_TAG)
+                    as AddEditTodoFragment? ?: AddEditTodoFragment()
+
+        todosFragment =
+            supportFragmentManager.findFragmentByTag(MainContract.View.TODOS_FRAGMENT_TAG)
+                    as TodosFragment? ?: TodosFragment()
+
 
         // create the presenter
         presenter = MainPresenter(view = this).apply {
@@ -55,6 +62,46 @@ class MainActivity : AppCompatActivity(), MainContract.View, View.OnClickListene
 
         // hosting TodosFragment on MainActivity
         showTodosFragment()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        Log.d("lifecycle_MainActivity", "onSaveInstanceState: ")
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun onRestart() {
+        Log.d("lifecycle_MainActivity", "onRestart: ")
+        super.onRestart()
+    }
+
+    override fun onStart() {
+        Log.d("lifecycle_MainActivity", "onStart: ")
+        super.onStart()
+    }
+
+    override fun onResume() {
+        Log.d("lifecycle_MainActivity", "onResume: ")
+        super.onResume()
+    }
+
+    override fun onPause() {
+        Log.d("lifecycle_MainActivity", "onPause: ")
+        super.onPause()
+    }
+
+    override fun onStop() {
+        Log.d("lifecycle_MainActivity", "onStop: ")
+        super.onStop()
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        Log.d("lifecycle_MainActivity", "onRestoreInstanceState: ")
+        super.onRestoreInstanceState(savedInstanceState)
+    }
+
+    override fun onDestroy() {
+        Log.d("lifecycle_MainActivity", "onDestroy: ")
+        super.onDestroy()
     }
 
     /**
@@ -76,13 +123,19 @@ class MainActivity : AppCompatActivity(), MainContract.View, View.OnClickListene
      * View - Fragment 표시
      */
     override fun showTodosFragment() {
-        supportFragmentManager.beginTransaction().add(R.id.fl_container_main, todosFragment)
-            .commit()
+        if (!todosFragment.isAdded) {
+            supportFragmentManager.beginTransaction()
+                .add(
+                    R.id.fl_container_main,
+                    todosFragment,
+                    MainContract.View.TODOS_FRAGMENT_TAG
+                ).commit()
+        }
     }
 
     override fun showAddEditTodoFragment() {
         supportFragmentManager.beginTransaction()
-            .addToBackStack("addEditTodoFragment")
+            .addToBackStack(MainContract.View.ADD_EDIT_TODO_FRAGMENT_TAG)
             .setCustomAnimations(
                 R.anim.enter_from_left,
                 R.anim.exit_to_right,
@@ -106,7 +159,6 @@ class MainActivity : AppCompatActivity(), MainContract.View, View.OnClickListene
     override fun setExpandedAppBarLayout(isExpended: Boolean) {
         binding.appBarLayout.setExpanded(isExpended)
     }
-
 
     /**
      * fab 클릭, 옵션 메뉴 클릭..

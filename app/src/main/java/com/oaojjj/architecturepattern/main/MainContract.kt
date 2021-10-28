@@ -5,6 +5,11 @@ import com.oaojjj.architecturepattern.BaseView
 
 interface MainContract {
     interface View : BaseView<Presenter> {
+        companion object {
+            val TODOS_FRAGMENT_TAG = "AddEditTodoFragment"
+            val ADD_EDIT_TODO_FRAGMENT_TAG = "TodosFragment"
+        }
+
         var isChangeFragment: Boolean
         fun showTodosFragment()
         fun showAddEditTodoFragment()
