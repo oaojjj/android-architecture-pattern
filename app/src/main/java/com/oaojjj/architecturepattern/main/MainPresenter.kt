@@ -9,14 +9,8 @@ import com.oaojjj.architecturepattern.todos.TodosContract
 import com.oaojjj.architecturepattern.todos.TodosPresenter
 
 class MainPresenter(val view: MainContract.View) : MainContract.Presenter {
-    private lateinit var _todosPresenter: TodosContract.Presenter
-    private lateinit var _addEditTodoPresenter: AddEditTodoContract.Presenter
-
-    override val todosPresenter: TodosPresenter
-        get() = _todosPresenter as TodosPresenter
-
-    override val addEditTodoPresenter: AddEditTodoPresenter
-        get() = _addEditTodoPresenter as AddEditTodoPresenter
+    override lateinit var todosPresenter: TodosPresenter
+    override lateinit var addEditTodoPresenter: AddEditTodoPresenter
 
     /**
      * @param presenters fragment presenters hosted in single activity
@@ -24,8 +18,10 @@ class MainPresenter(val view: MainContract.View) : MainContract.Presenter {
     override fun setFragmentPresenter(vararg presenters: BasePresenter) {
         for (presenter in presenters) {
             when (presenter) {
-                is TodosContract.Presenter -> _todosPresenter = presenter
-                is AddEditTodoContract.Presenter -> _addEditTodoPresenter = presenter
+                is TodosContract.Presenter -> todosPresenter =
+                    presenter as TodosPresenter
+                is AddEditTodoContract.Presenter -> addEditTodoPresenter =
+                    presenter as AddEditTodoPresenter
             }
         }
     }

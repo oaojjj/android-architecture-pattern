@@ -3,7 +3,9 @@ package com.oaojjj.architecturepattern.main
 import androidx.fragment.app.Fragment
 import com.oaojjj.architecturepattern.BasePresenter
 import com.oaojjj.architecturepattern.BaseView
+import com.oaojjj.architecturepattern.addedittodo.AddEditTodoContract
 import com.oaojjj.architecturepattern.addedittodo.AddEditTodoPresenter
+import com.oaojjj.architecturepattern.todos.TodosContract
 import com.oaojjj.architecturepattern.todos.TodosPresenter
 
 interface MainContract {
@@ -32,8 +34,8 @@ interface MainContract {
     }
 
     interface Presenter : BasePresenter {
-        val todosPresenter: TodosPresenter
-        val addEditTodoPresenter: AddEditTodoPresenter
+        var todosPresenter: TodosPresenter
+        var addEditTodoPresenter: AddEditTodoPresenter
 
         fun setFragmentPresenter(vararg presenters: BasePresenter)
 
