@@ -1,9 +1,8 @@
 package com.oaojjj.architecturepattern.todos
 
-class TodosPresenter : TodosContract.Presenter {
-    private var todosView: TodosContract.View? = null
+import androidx.fragment.app.Fragment
 
-    override fun setView(view: TodosContract.View) {
-        todosView = view
-    }
+class TodosPresenter(private val view: TodosContract.View?) : TodosContract.Presenter {
+
+    fun getView(): Fragment = view as TodosFragment
 }

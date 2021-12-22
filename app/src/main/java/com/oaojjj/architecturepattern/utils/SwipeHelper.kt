@@ -1,4 +1,4 @@
-package com.oaojjj.architecturepattern.controller
+package com.oaojjj.architecturepattern.utils
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.oaojjj.architecturepattern.R
 import java.util.*
-import com.oaojjj.architecturepattern.customview.UnderlayButton
+import com.oaojjj.architecturepattern.todos.UnderlayButton
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
@@ -19,10 +19,8 @@ import android.view.View.OnTouchListener
 
 
 @SuppressLint("ClickableViewAccessibility")
-
 abstract class SwipeHelper(context: Context, var mRecyclerView: RecyclerView) :
     ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
-    private val TAG: String = "SwipeController"
     private var buttonWidth = context.resources.getDimension(R.dimen.underlay_button_width)
     private var buttons: MutableList<UnderlayButton> = mutableListOf()
 
@@ -41,7 +39,7 @@ abstract class SwipeHelper(context: Context, var mRecyclerView: RecyclerView) :
         object : GestureDetector.SimpleOnGestureListener() {
             override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
                 var count = 0
-                Log.d(TAG, "gestureListener_test: ${e?.action}, x:${e?.x}, y:${e?.y}")
+                Log.d(Companion.TAG, "gestureListener_test: ${e?.action}, x:${e?.x}, y:${e?.y}")
                 e?.let {
                     for (button in buttons) {
                         count += 1
@@ -52,7 +50,7 @@ abstract class SwipeHelper(context: Context, var mRecyclerView: RecyclerView) :
                                 recoverSwipedItem()
                                 -1
                             }
-                            Log.d(TAG, "onSingleTapConfirmed: $recoverQueue")
+                            Log.d(Companion.TAG, "onSingleTapConfirmed: $recoverQueue")
                             break
                         }
                     }
@@ -124,7 +122,7 @@ abstract class SwipeHelper(context: Context, var mRecyclerView: RecyclerView) :
     // swipe 완료 시점에 호출
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
         val pos = viewHolder.adapterPosition
-        Log.d(TAG, "onSwiped: swipedPos:$swipedPos, pos:$pos, buttonsBuffer:$buttonsBuffer")
+        Log.d(Companion.TAG, "onSwiped: swipedPos:$swipedPos, pos:$pos, buttonsBuffer:$buttonsBuffer")
 
         if (swipedPos != pos) {
             recoverQueue.add(pos)
@@ -194,11 +192,15 @@ abstract class SwipeHelper(context: Context, var mRecyclerView: RecyclerView) :
 
     @Synchronized
     private fun recoverSwipedItem() {
-        Log.d(TAG, "recoverSwipedItem: $recoverQueue")
+        Log.d(Companion.TAG, "recoverSwipedItem: $recoverQueue")
         while (!recoverQueue.isEmpty()) {
             val pos = recoverQueue.poll() ?: -1
             if (pos > -1) mRecyclerView.adapter?.notifyItemChanged(pos)
         }
+    }
+
+    companion object {
+        private const val TAG: String = "SwipeController"
     }
 
 }

@@ -1,11 +1,8 @@
-package com.oaojjj.architecturepattern.customview
+package com.oaojjj.architecturepattern.todos
 
 import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.text.TextPaint
-import android.util.Log
-import com.oaojjj.architecturepattern.listener.OnUnderlayButtonClickListener
-
 
 class UnderlayButton() {
     private var mText: String = "기능"
@@ -96,5 +93,9 @@ class UnderlayButton() {
             return true
         }
         return false
+    }
+
+    interface OnUnderlayButtonClickListener {
+        fun onUnderlayButtonClick(pos: Int)
     }
 }

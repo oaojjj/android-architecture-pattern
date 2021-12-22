@@ -4,99 +4,121 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomappbar.BottomAppBar
 import com.oaojjj.architecturepattern.R
 import com.oaojjj.architecturepattern.databinding.ActivityMainBinding
-import com.oaojjj.architecturepattern.frgment.AddTodoFragment
-import com.oaojjj.architecturepattern.frgment.TodosFragment
-import com.oaojjj.architecturepattern.listener.OnFinishedAddTodoListener
-import com.oaojjj.architecturepattern.model.TodoModel
+import com.oaojjj.architecturepattern.addedittodo.AddEditTodoFragment
+import com.oaojjj.architecturepattern.addedittodo.AddEditTodoPresenter
+import com.oaojjj.architecturepattern.todos.TodosFragment
 import com.oaojjj.architecturepattern.todos.TodosPresenter
+import com.oaojjj.architecturepattern.utils.FragmentFactoryImpl
 
-class MainActivity : AppCompatActivity(), MainContract.View, View.OnClickListener {
-    private lateinit var bottomAppBar: BottomAppBar
-    private lateinit var appBarLayout: AppBarLayout
-
+class MainActivity : AppCompatActivity(), MainContract.View {
     private lateinit var binding: ActivityMainBinding
 
-    private lateinit var todosPresenter: TodosPresenter
+    override var mCurrentFragment: Fragment? = null
 
-    private var menuVisible: Boolean = false
-
-    // addFragment -> False
-    // activeListFragment -> true
-    private var changeViewFlag = true
-
-    // fragment instance
-    private var activeListFragment = TodosFragment()
-    private lateinit var addTodoFragment: AddTodoFragment
-
-    // listener
-    private lateinit var finishedAddTodoListener: OnFinishedAddTodoListener
+    override lateinit var presenter: MainContract.Presenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        supportFragmentManager.fragmentFactory = FragmentFactoryImpl()
         super.onCreate(savedInstanceState)
+        Log.d("lifecycle_MainActivity", "onCreate: ")
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        //showOptionMenu(false)
 
-        // set up the toolbar, appbar ....
-        setSupportActionBar(binding.toolbar)
-        bottomAppBar = binding.babMain
-        appBarLayout = binding.appBarLayout
+        // set up the toolbar
+        setSupportActionBar(binding.toolbarMain)
 
-        // Controller: Model 세팅(초기화)
-        Thread { TodoModel.instantiate(applicationContext) }.start()
-
-        // set listener
-        binding.fabMain.setOnClickListener(this)
-
-        // host Activity on Fragment
-        createTodosFragment()
-    }
-
-    private fun createTodosFragment() {
-        supportFragmentManager.beginTransaction()
-            .add(R.id.fl_container_main, activeListFragment)
-            .commit()
-        todosPresenter = TodosPresenter().apply {
-            setView(activeListFragment)
+        // create view(fragment) & create the presenter
+        presenter = MainPresenter(view = this).apply {
+            setFragmentPresenter(
+                TodosPresenter(
+                    view = supportFragmentManager.fragmentFactory.instantiate(
+                        classLoader,
+                        TodosFragment::class.java.name
+                    ) as TodosFragment
+                ),
+                AddEditTodoPresenter(
+                    view = supportFragmentManager.fragmentFactory.instantiate(
+                        classLoader,
+                        AddEditTodoFragment::class.java.name
+                    ) as AddEditTodoFragment
+                )
+            )
         }
+
+        /**
+         * fab 클릭, 옵션 메뉴 클릭..
+         * View 에서 사용자 이벤트 받아서 presenter에 전달
+         * 근데 굳이 이럴 필요가 있을까? 그냥 바로 fragment 생성하고 애니메이션 바꾸면 안되는 것인가?
+         * 어차피 둘다 view에 관련된 조작인데
+         */
+        // set floating button listener
+        binding.fabMain.setOnClickListener {
+            when (mCurrentFragment) {
+                is TodosFragment -> presenter.addTodo()
+                is AddEditTodoFragment -> {
+                    setExpandedAppBarLayout(true)
+                    showBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER)
+                }
+            }
+        }
+
+        // hosting TodosFragment on MainActivity
+        navigateTodosFragment()
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        Log.d("lifecycle_MainActivity", "onSaveInstanceState: ")
+        super.onSaveInstanceState(outState)
+    }
 
+    override fun onRestart() {
+        Log.d("lifecycle_MainActivity", "onRestart: ")
+        super.onRestart()
+    }
 
-    private fun createAddTodoFragment() {
-        setExpandedAppBarLayout(true)
+    override fun onStart() {
+        Log.d("lifecycle_MainActivity", "onStart: ")
+        super.onStart()
+    }
 
-        addTodoFragment = AddTodoFragment().apply { finishedAddTodoListener = this }
-        supportFragmentManager.beginTransaction()
-            .addToBackStack("addTodoFragment")
-            .setCustomAnimations(
-                R.anim.enter_from_left,
-                R.anim.exit_to_right,
-                R.anim.enter_from_right,
-                R.anim.exit_to_left
-            ).replace(R.id.fl_container_main, addTodoFragment).commit()
+    override fun onResume() {
+        Log.d("lifecycle_MainActivity", "onResume: ")
+        super.onResume()
+    }
 
-        Log.d("main", "onAddTodo: ${supportFragmentManager.backStackEntryCount}")
+    override fun onPause() {
+        Log.d("lifecycle_MainActivity", "onPause: ")
+        super.onPause()
+    }
+
+    override fun onStop() {
+        Log.d("lifecycle_MainActivity", "onStop: ")
+        super.onStop()
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        Log.d("lifecycle_MainActivity", "onRestoreInstanceState: ")
+        super.onRestoreInstanceState(savedInstanceState)
+    }
+
+    override fun onDestroy() {
+        Log.d("lifecycle_MainActivity", "onDestroy: ")
+        super.onDestroy()
     }
 
     /**
      * View
      * change bottom fab position(fab, bottomAbbBar)
      */
-    private fun changeBottomAnimation(ResId: Int, fabAlignmentMode: Int) {
-        //showOptionMenu(changeViewFlag)
-        changeViewFlag = !changeViewFlag
+    override fun showBottomAnimation(ResId: Int, fabAlignmentMode: Int) {
         binding.babMain.fabAlignmentMode = fabAlignmentMode
         Handler(Looper.getMainLooper()).apply {
             postDelayed({
@@ -105,109 +127,49 @@ class MainActivity : AppCompatActivity(), MainContract.View, View.OnClickListene
                 )
             }, 300)
         }
-
     }
 
     /**
-     * View
-     * 옵션 메뉴 조작
-     * menuVisible:
-     * true -> show optionMenu
-     * false -> hide optionMenu
+     * View - Fragment 표시
      */
-    /*override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_todo, menu)
-        val menuItem = menu?.findItem(R.id.save_todo)
-
-        return if (menuVisible) {
-            menuItem?.isVisible = true
-            true
-        } else {
-            menuItem?.isVisible = false
-            false
+    override fun navigateTodosFragment() {
+        val todosFragment = presenter.todosPresenter.getView()
+        if (!todosFragment.isAdded) {
+            supportFragmentManager.beginTransaction().add(
+                R.id.fl_container_main,
+                todosFragment,
+                MainContract.View.TODOS_FRAGMENT_TAG
+            ).commit()
+            mCurrentFragment = todosFragment
         }
     }
 
-    private fun showOptionMenu(isShow: Boolean) {
-        invalidateOptionsMenu()
-        menuVisible = isShow
-    }*/
-
-
-    /**
-     * Controller
-     * fab 클릭, 옵션 메뉴 클릭..
-     */
-
-    // fab 클릭 이벤트
-    override fun onClick(view: View) {
-        Log.d("MainActivity", "onClick: ${supportFragmentManager.backStackEntryCount}")
-        when (changeViewFlag) {
-            true -> {
-                createAddTodoFragment()
-                changeBottomAnimation(R.drawable.check, BottomAppBar.FAB_ALIGNMENT_MODE_END)
-            }
-            false -> {
-                onFinishedAddTodo()
-                changeBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER)
-            }
-        }
+    override fun navigateAddEditTodoFragment() {
+        val addEditTodoFragment = presenter.addEditTodoPresenter.getView()
+        supportFragmentManager.beginTransaction()
+            .addToBackStack(MainContract.View.ADD_EDIT_TODO_FRAGMENT_TAG)
+            .setCustomAnimations(
+                R.anim.enter_from_left,
+                R.anim.exit_to_right,
+                R.anim.enter_from_right,
+                R.anim.exit_to_left
+            ).replace(R.id.fl_container_main, addEditTodoFragment).commit()
+        mCurrentFragment = addEditTodoFragment
     }
-
-    // option menu 클릭 이벤트
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            android.R.id.home -> {
-                onBackPressed()
-                true
-            }
-            R.id.save_todo -> {
-                onFinishedAddTodo()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
-
-    private fun onFinishedAddTodo() {
-        finishedAddTodoListener.onFinishedAddTodo() // 데이터 추가 발생 -> Controller: Model 변경
-        supportFragmentManager.popBackStack(
-            "addTodoFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE
-        )
-
-        changeBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER)
-    }
-
-
-    override fun onBackPressed() {
-        if (!changeViewFlag)
-            changeBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER)
-        super.onBackPressed()
-    }
-
 
     /**
      * View
      * 상단 액션바, 하단 바텀바 조작
      */
     override fun showBottomAppbar(isShow: Boolean) {
+        val bottomAppbar = binding.babMain
         when (isShow) {
-            true -> bottomAppBar.behavior.slideUp(bottomAppBar)
-            false -> bottomAppBar.behavior.slideDown(bottomAppBar)
+            true -> bottomAppbar.behavior.slideUp(bottomAppbar)
+            false -> bottomAppbar.behavior.slideDown(bottomAppbar)
         }
     }
 
     override fun setExpandedAppBarLayout(isExpended: Boolean) {
-        appBarLayout.setExpanded(isExpended)
+        binding.appBarLayout.setExpanded(isExpended)
     }
-
-    /**
-     * View
-     * Fragment 표시
-     */
-    override fun showFragment(fragment: Fragment) {
-
-    }
-
-
 }
