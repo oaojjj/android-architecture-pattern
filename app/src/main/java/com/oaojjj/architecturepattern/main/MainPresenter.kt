@@ -4,39 +4,37 @@ import com.google.android.material.bottomappbar.BottomAppBar
 import com.oaojjj.architecturepattern.BasePresenter
 import com.oaojjj.architecturepattern.R
 import com.oaojjj.architecturepattern.addedittodo.AddEditTodoContract
+import com.oaojjj.architecturepattern.addedittodo.AddEditTodoPresenter
 import com.oaojjj.architecturepattern.todos.TodosContract
+import com.oaojjj.architecturepattern.todos.TodosPresenter
 
-class MainPresenter(private val view: MainContract.View?) : MainContract.Presenter {
-    private var todosPresenter: TodosContract.Presenter? = null
-    private var addEditTodoPresenter: AddEditTodoContract.Presenter? = null
+class MainPresenter(val view: MainContract.View) : MainContract.Presenter {
+    private lateinit var _todosPresenter: TodosContract.Presenter
+    private lateinit var _addEditTodoPresenter: AddEditTodoContract.Presenter
 
-    /**
-     * @param presenter fragment presenters hosted in single activity
-     */
-    override fun setFragmentPresenter(vararg presenter: BasePresenter) {
-        when (presenter) {
-            is TodosContract.Presenter -> todosPresenter = presenter
-            is AddEditTodoContract.Presenter -> addEditTodoPresenter = presenter
-        }
-    }
+    override val todosPresenter: TodosPresenter
+        get() = _todosPresenter as TodosPresenter
+
+    override val addEditTodoPresenter: AddEditTodoPresenter
+        get() = _addEditTodoPresenter as AddEditTodoPresenter
 
     /**
-     * @param T fragment views hosted in single activity
+     * @param presenters fragment presenters hosted in single activity
      */
-    override fun <T> getFragmentPresenter(type: T): BasePresenter? {
-        return when (type) {
-            is TodosContract.View -> todosPresenter
-            is AddEditTodoContract.View -> addEditTodoPresenter
-            else -> null
+    override fun setFragmentPresenter(vararg presenters: BasePresenter) {
+        for (presenter in presenters) {
+            when (presenter) {
+                is TodosContract.Presenter -> _todosPresenter = presenter
+                is AddEditTodoContract.Presenter -> _addEditTodoPresenter = presenter
+            }
         }
     }
 
     // MainActivity에서 사용자 이벤트(Todo추가)를 받아서 처리
     override fun addTodo() {
         with(view) {
-            this?.showAddEditTodoFragment()
-            this?.showBottomAnimation(R.drawable.check, BottomAppBar.FAB_ALIGNMENT_MODE_END)
-            this?.isChangeFragment = true
+            this.navigateAddEditTodoFragment()
+            this.showBottomAnimation(R.drawable.check, BottomAppBar.FAB_ALIGNMENT_MODE_END)
         }
     }
 }

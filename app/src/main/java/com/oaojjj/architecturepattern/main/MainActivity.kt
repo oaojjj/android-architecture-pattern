@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import com.google.android.material.bottomappbar.BottomAppBar
 import com.oaojjj.architecturepattern.R
 import com.oaojjj.architecturepattern.databinding.ActivityMainBinding
@@ -14,54 +15,63 @@ import com.oaojjj.architecturepattern.addedittodo.AddEditTodoFragment
 import com.oaojjj.architecturepattern.addedittodo.AddEditTodoPresenter
 import com.oaojjj.architecturepattern.todos.TodosFragment
 import com.oaojjj.architecturepattern.todos.TodosPresenter
+import com.oaojjj.architecturepattern.utils.FragmentFactoryImpl
 
-class MainActivity : AppCompatActivity(), MainContract.View, View.OnClickListener {
+class MainActivity : AppCompatActivity(), MainContract.View {
     private lateinit var binding: ActivityMainBinding
 
-    // fragment
-    private lateinit var todosFragment: TodosFragment
-    private lateinit var addEditTodoFragment: AddEditTodoFragment
+    override var mCurrentFragment: Fragment? = null
 
     override lateinit var presenter: MainContract.Presenter
 
-    /**
-     * true -> todosFragment
-     * false -> addEditTodoFragment
-     */
-    override var isChangeFragment: Boolean = false
-
     override fun onCreate(savedInstanceState: Bundle?) {
+        supportFragmentManager.fragmentFactory = FragmentFactoryImpl()
         super.onCreate(savedInstanceState)
         Log.d("lifecycle_MainActivity", "onCreate: ")
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         // set up the toolbar
         setSupportActionBar(binding.toolbarMain)
 
-        // create view(fragment)
-        addEditTodoFragment =
-            supportFragmentManager.findFragmentByTag(MainContract.View.ADD_EDIT_TODO_FRAGMENT_TAG)
-                    as AddEditTodoFragment? ?: AddEditTodoFragment()
-
-        todosFragment =
-            supportFragmentManager.findFragmentByTag(MainContract.View.TODOS_FRAGMENT_TAG)
-                    as TodosFragment? ?: TodosFragment()
-
-
-        // create the presenter
+        // create view(fragment) & create the presenter
         presenter = MainPresenter(view = this).apply {
             setFragmentPresenter(
-                TodosPresenter(view = todosFragment),
-                AddEditTodoPresenter(view = addEditTodoFragment)
+                TodosPresenter(
+                    view = supportFragmentManager.fragmentFactory.instantiate(
+                        classLoader,
+                        TodosFragment::class.java.name
+                    ) as TodosFragment
+                ),
+                AddEditTodoPresenter(
+                    view = supportFragmentManager.fragmentFactory.instantiate(
+                        classLoader,
+                        AddEditTodoFragment::class.java.name
+                    ) as AddEditTodoFragment
+                )
             )
         }
 
+        /**
+         * fab 클릭, 옵션 메뉴 클릭..
+         * View 에서 사용자 이벤트 받아서 presenter에 전달
+         * 근데 굳이 이럴 필요가 있을까? 그냥 바로 fragment 생성하고 애니메이션 바꾸면 안되는 것인가?
+         * 어차피 둘다 view에 관련된 조작인데
+         */
         // set floating button listener
-        binding.fabMain.setOnClickListener(this)
+        binding.fabMain.setOnClickListener {
+            when (mCurrentFragment) {
+                is TodosFragment -> presenter.addTodo()
+                is AddEditTodoFragment -> {
+                    setExpandedAppBarLayout(true)
+                    showBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER)
+                }
+            }
+        }
 
         // hosting TodosFragment on MainActivity
-        showTodosFragment()
+        navigateTodosFragment()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -122,18 +132,20 @@ class MainActivity : AppCompatActivity(), MainContract.View, View.OnClickListene
     /**
      * View - Fragment 표시
      */
-    override fun showTodosFragment() {
+    override fun navigateTodosFragment() {
+        val todosFragment = presenter.todosPresenter.getView()
         if (!todosFragment.isAdded) {
-            supportFragmentManager.beginTransaction()
-                .add(
-                    R.id.fl_container_main,
-                    todosFragment,
-                    MainContract.View.TODOS_FRAGMENT_TAG
-                ).commit()
+            supportFragmentManager.beginTransaction().add(
+                R.id.fl_container_main,
+                todosFragment,
+                MainContract.View.TODOS_FRAGMENT_TAG
+            ).commit()
+            mCurrentFragment = todosFragment
         }
     }
 
-    override fun showAddEditTodoFragment() {
+    override fun navigateAddEditTodoFragment() {
+        val addEditTodoFragment = presenter.addEditTodoPresenter.getView()
         supportFragmentManager.beginTransaction()
             .addToBackStack(MainContract.View.ADD_EDIT_TODO_FRAGMENT_TAG)
             .setCustomAnimations(
@@ -142,6 +154,7 @@ class MainActivity : AppCompatActivity(), MainContract.View, View.OnClickListene
                 R.anim.enter_from_right,
                 R.anim.exit_to_left
             ).replace(R.id.fl_container_main, addEditTodoFragment).commit()
+        mCurrentFragment = addEditTodoFragment
     }
 
     /**
@@ -158,21 +171,5 @@ class MainActivity : AppCompatActivity(), MainContract.View, View.OnClickListene
 
     override fun setExpandedAppBarLayout(isExpended: Boolean) {
         binding.appBarLayout.setExpanded(isExpended)
-    }
-
-    /**
-     * fab 클릭, 옵션 메뉴 클릭..
-     * View 에서 사용자 이벤트 받아서 presenter에 전달
-     * 근데 굳이 이럴 필요가 있을까? 그냥 바로 fragment 생성하고 애니메이션 바꾸면 안되는 것인가?
-     * 어차피 둘다 view에 관련된 조작인데
-     */
-    override fun onClick(view: View) {
-        when (isChangeFragment) {
-            false -> presenter.addTodo()
-            true -> {
-                setExpandedAppBarLayout(true)
-                showBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER)
-            }
-        }
     }
 }

@@ -1,9 +1,13 @@
 package com.oaojjj.architecturepattern.todos
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Paint
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.CheckBox
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.core.content.ContextCompat
@@ -12,18 +16,15 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.oaojjj.architecturepattern.R
-import com.oaojjj.architecturepattern.adapter.TodoAdapter
 import com.oaojjj.architecturepattern.model.TodoModel
 
-import com.oaojjj.architecturepattern.helper.SwipeHelper
-import com.oaojjj.architecturepattern.customview.UnderlayButton
+import com.oaojjj.architecturepattern.utils.SwipeHelper
 import com.oaojjj.architecturepattern.databinding.FragmentTodosBinding
-import com.oaojjj.architecturepattern.listener.OnTodoCheckBoxClickListener
-import com.oaojjj.architecturepattern.listener.OnUnderlayButtonClickListener
+import com.oaojjj.architecturepattern.todos.UnderlayButton.OnUnderlayButtonClickListener
 import com.oaojjj.architecturepattern.model.Todo
 
 
-class TodosFragment : Fragment(), TodosContract.View, OnTodoCheckBoxClickListener {
+class TodosFragment : Fragment(), TodosContract.View {
     private lateinit var binding: FragmentTodosBinding
     override lateinit var presenter: TodosContract.Presenter
 
@@ -59,8 +60,11 @@ class TodosFragment : Fragment(), TodosContract.View, OnTodoCheckBoxClickListene
         Log.d("lifecycle_TodosFragment", "onViewCreated: ")
 
         // init data, adapter
-        mAdapter = TodoAdapter(requireContext(), TodoModel.getDataList()).apply {
-            setOnTodoCheckBoxListener(this@TodosFragment)
+        mAdapter = TodoAdapter(TodoModel.getDataList(), object : TodoItemListener {
+            override fun onTodoCheckBoxClick(position: Int, checked: Boolean) {
+                onUpdateCheckedTodo(position, checked)
+            }
+        }).apply {
         }
 
         binding.rvTodo.let {
@@ -165,7 +169,6 @@ class TodosFragment : Fragment(), TodosContract.View, OnTodoCheckBoxClickListene
          ).show(parentFragmentManager, null)*/
     }
 
-
     /**
      * 사용자 이벤트 발생 하고 호출되는 메소드(callback)
      * add, remove, update ...등
@@ -193,11 +196,57 @@ class TodosFragment : Fragment(), TodosContract.View, OnTodoCheckBoxClickListene
         }.start()
     }
 
-    override fun onTodoCheckBoxClick(position: Int, checked: Boolean) {
-        onUpdateCheckedTodo(position, checked)
-    }
 
     override fun updateTodosView(item: MutableList<Todo>, position: Int) {
         TODO("Not yet implemented")
+    }
+
+    private inner class TodoAdapter(
+        todos: List<Todo>,
+        private val itemListener: TodoItemListener
+    ) : RecyclerView.Adapter<TodoAdapter.TodoViewHolder>() {
+
+        var todos: List<Todo> = todos
+            @SuppressLint("NotifyDataSetChanged")
+            set(todos) {
+                field = todos
+                notifyDataSetChanged()
+            }
+
+        inner class TodoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            private val cbTodo: CheckBox = itemView.findViewById(R.id.cb_todo)
+            private val tvContents: TextView = itemView.findViewById(R.id.tv_todo_contents)
+
+            fun bind(item: Todo) {
+                cbTodo.isChecked = item.checked
+                tvContents.text = item.content
+
+                // 취소선
+                if (cbTodo.isChecked) tvContents.paintFlags =
+                    tvContents.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+                else tvContents.paintFlags = 0
+
+                cbTodo.setOnClickListener {
+                    itemListener.onTodoCheckBoxClick(adapterPosition, cbTodo.isChecked)
+                }
+            }
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TodoViewHolder {
+            val view =
+                LayoutInflater.from(parent.context).inflate(R.layout.item_todo, parent, false)
+            return TodoViewHolder(view)
+        }
+
+        override fun onBindViewHolder(holder: TodoViewHolder, position: Int) {
+            holder.bind(todos[position])
+        }
+
+        override fun getItemCount(): Int = todos.size
+
+    }
+
+    interface TodoItemListener {
+        fun onTodoCheckBoxClick(position: Int, checked: Boolean)
     }
 }
