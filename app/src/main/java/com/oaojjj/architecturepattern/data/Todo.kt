@@ -1,4 +1,4 @@
-package com.oaojjj.architecturepattern.model
+package com.oaojjj.architecturepattern.data
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

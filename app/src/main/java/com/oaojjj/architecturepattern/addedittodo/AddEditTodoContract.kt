@@ -10,5 +10,6 @@ interface AddEditTodoContract {
     }
 
     interface Presenter : BasePresenter {
+        fun saveTodo()
     }
 }

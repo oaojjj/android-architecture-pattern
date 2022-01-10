@@ -1,9 +1,10 @@
-package com.oaojjj.architecturepattern.model
+package com.oaojjj.architecturepattern.data.source.local
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.oaojjj.architecturepattern.data.Todo
 
 @Database(entities = [Todo::class], version = 2)
 abstract class TodoDatabase : RoomDatabase() {
@@ -19,6 +20,7 @@ abstract class TodoDatabase : RoomDatabase() {
                     TodoDatabase::class.java,
                     "TodoDatabase"
                 ).fallbackToDestructiveMigration()
+                    .allowMainThreadQueries()
                     .build()
                     .apply { INSTANCE = this }
             }

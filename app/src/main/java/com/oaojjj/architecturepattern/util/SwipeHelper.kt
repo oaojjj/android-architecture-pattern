@@ -1,4 +1,4 @@
-package com.oaojjj.architecturepattern.utils
+package com.oaojjj.architecturepattern.util
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -39,7 +39,7 @@ abstract class SwipeHelper(context: Context, var mRecyclerView: RecyclerView) :
         object : GestureDetector.SimpleOnGestureListener() {
             override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
                 var count = 0
-                Log.d(Companion.TAG, "gestureListener_test: ${e?.action}, x:${e?.x}, y:${e?.y}")
+                Log.d(TAG, "gestureListener_test: ${e?.action}, x:${e?.x}, y:${e?.y}")
                 e?.let {
                     for (button in buttons) {
                         count += 1
@@ -50,7 +50,7 @@ abstract class SwipeHelper(context: Context, var mRecyclerView: RecyclerView) :
                                 recoverSwipedItem()
                                 -1
                             }
-                            Log.d(Companion.TAG, "onSingleTapConfirmed: $recoverQueue")
+                            Log.d(TAG, "onSingleTapConfirmed: $recoverQueue")
                             break
                         }
                     }
@@ -192,7 +192,7 @@ abstract class SwipeHelper(context: Context, var mRecyclerView: RecyclerView) :
 
     @Synchronized
     private fun recoverSwipedItem() {
-        Log.d(Companion.TAG, "recoverSwipedItem: $recoverQueue")
+        Log.d(TAG, "recoverSwipedItem: $recoverQueue")
         while (!recoverQueue.isEmpty()) {
             val pos = recoverQueue.poll() ?: -1
             if (pos > -1) mRecyclerView.adapter?.notifyItemChanged(pos)

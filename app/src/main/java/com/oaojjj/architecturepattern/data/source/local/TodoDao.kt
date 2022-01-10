@@ -1,6 +1,7 @@
-package com.oaojjj.architecturepattern.model
+package com.oaojjj.architecturepattern.data.source.local
 
 import androidx.room.*
+import com.oaojjj.architecturepattern.data.Todo
 
 @Dao
 interface TodoDao {

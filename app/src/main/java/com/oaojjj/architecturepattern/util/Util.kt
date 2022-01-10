@@ -1,4 +1,4 @@
-package com.oaojjj.architecturepattern.utils
+package com.oaojjj.architecturepattern.util
 
 import android.content.Context
 import android.view.View

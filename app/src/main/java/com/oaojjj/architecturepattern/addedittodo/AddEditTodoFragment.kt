@@ -11,8 +11,8 @@ import androidx.fragment.app.Fragment
 import com.oaojjj.architecturepattern.R
 import com.oaojjj.architecturepattern.databinding.FragmentAddEditTodoBinding
 import com.oaojjj.architecturepattern.listener.OnFinishedAddTodoListener
-import com.oaojjj.architecturepattern.model.TodoModel
-import com.oaojjj.architecturepattern.utils.Util
+import com.oaojjj.architecturepattern.data.source.TodoModel
+import com.oaojjj.architecturepattern.util.Util
 
 class AddEditTodoFragment : Fragment(), AddEditTodoContract.View, OnFinishedAddTodoListener {
     private lateinit var binding: FragmentAddEditTodoBinding

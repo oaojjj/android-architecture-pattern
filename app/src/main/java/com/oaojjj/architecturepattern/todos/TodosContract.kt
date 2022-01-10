@@ -2,7 +2,7 @@ package com.oaojjj.architecturepattern.todos
 
 import com.oaojjj.architecturepattern.BasePresenter
 import com.oaojjj.architecturepattern.BaseView
-import com.oaojjj.architecturepattern.model.Todo
+import com.oaojjj.architecturepattern.data.Todo
 
 interface TodosContract {
     interface View : BaseView<Presenter> {
@@ -10,5 +10,7 @@ interface TodosContract {
     }
 
     interface Presenter : BasePresenter {
+        fun removeTodo()
+        fun updateTodo()
     }
 }

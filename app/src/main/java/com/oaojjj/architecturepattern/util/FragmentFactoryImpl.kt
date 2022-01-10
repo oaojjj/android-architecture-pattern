@@ -1,4 +1,4 @@
-package com.oaojjj.architecturepattern.utils
+package com.oaojjj.architecturepattern.util
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentFactory

@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -15,7 +14,8 @@ import com.oaojjj.architecturepattern.addedittodo.AddEditTodoFragment
 import com.oaojjj.architecturepattern.addedittodo.AddEditTodoPresenter
 import com.oaojjj.architecturepattern.todos.TodosFragment
 import com.oaojjj.architecturepattern.todos.TodosPresenter
-import com.oaojjj.architecturepattern.utils.FragmentFactoryImpl
+import com.oaojjj.architecturepattern.util.AppExecutors
+import com.oaojjj.architecturepattern.util.FragmentFactoryImpl
 
 class MainActivity : AppCompatActivity(), MainContract.View {
     private lateinit var binding: ActivityMainBinding
@@ -53,24 +53,18 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             )
         }
 
-        /**
-         * fab 클릭, 옵션 메뉴 클릭..
-         * View 에서 사용자 이벤트 받아서 presenter에 전달
-         * 근데 굳이 이럴 필요가 있을까? 그냥 바로 fragment 생성하고 애니메이션 바꾸면 안되는 것인가?
-         * 어차피 둘다 view에 관련된 조작인데
-         */
         // set floating button listener
         binding.fabMain.setOnClickListener {
             when (mCurrentFragment) {
-                is TodosFragment -> presenter.addTodo()
+                is TodosFragment -> navigateAddEditTodoFragment()
                 is AddEditTodoFragment -> {
-                    setExpandedAppBarLayout(true)
-                    showBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER)
+                    presenter.addEditTodoPresenter.saveTodo()
+                    navigateAddEditTodoFragment()
                 }
             }
         }
 
-        // hosting TodosFragment on MainActivity
+        // hosting todosFragment on mainActivity
         navigateTodosFragment()
     }
 
@@ -120,6 +114,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
      */
     override fun showBottomAnimation(ResId: Int, fabAlignmentMode: Int) {
         binding.babMain.fabAlignmentMode = fabAlignmentMode
+
         Handler(Looper.getMainLooper()).apply {
             postDelayed({
                 binding.fabMain.setImageDrawable(
@@ -130,22 +125,26 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     /**
-     * View - Fragment 표시
+     * View
+     * Fragment 이동
      */
     override fun navigateTodosFragment() {
         val todosFragment = presenter.todosPresenter.getView()
+
         if (!todosFragment.isAdded) {
             supportFragmentManager.beginTransaction().add(
                 R.id.fl_container_main,
                 todosFragment,
                 MainContract.View.TODOS_FRAGMENT_TAG
             ).commit()
-            mCurrentFragment = todosFragment
         }
+        mCurrentFragment = todosFragment
+        showBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER)
     }
 
     override fun navigateAddEditTodoFragment() {
         val addEditTodoFragment = presenter.addEditTodoPresenter.getView()
+
         supportFragmentManager.beginTransaction()
             .addToBackStack(MainContract.View.ADD_EDIT_TODO_FRAGMENT_TAG)
             .setCustomAnimations(
@@ -154,7 +153,9 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                 R.anim.enter_from_right,
                 R.anim.exit_to_left
             ).replace(R.id.fl_container_main, addEditTodoFragment).commit()
+
         mCurrentFragment = addEditTodoFragment
+        showBottomAnimation(R.drawable.check, BottomAppBar.FAB_ALIGNMENT_MODE_END)
     }
 
     /**
