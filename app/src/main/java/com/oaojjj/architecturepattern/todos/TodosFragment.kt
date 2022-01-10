@@ -16,12 +16,12 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.oaojjj.architecturepattern.R
-import com.oaojjj.architecturepattern.model.TodoModel
+import com.oaojjj.architecturepattern.data.source.TodoModel
 
-import com.oaojjj.architecturepattern.utils.SwipeHelper
+import com.oaojjj.architecturepattern.util.SwipeHelper
 import com.oaojjj.architecturepattern.databinding.FragmentTodosBinding
 import com.oaojjj.architecturepattern.todos.UnderlayButton.OnUnderlayButtonClickListener
-import com.oaojjj.architecturepattern.model.Todo
+import com.oaojjj.architecturepattern.data.Todo
 
 
 class TodosFragment : Fragment(), TodosContract.View {
@@ -33,6 +33,7 @@ class TodosFragment : Fragment(), TodosContract.View {
     private lateinit var mAdapter: TodoAdapter
 
     override fun onAttach(context: Context) {
+        Log.d("lifecycle_TodosFragment", "onAttach: ")
         super.onAttach(context)
     }
 
@@ -60,12 +61,12 @@ class TodosFragment : Fragment(), TodosContract.View {
         Log.d("lifecycle_TodosFragment", "onViewCreated: ")
 
         // init data, adapter
-        mAdapter = TodoAdapter(TodoModel.getDataList(), object : TodoItemListener {
-            override fun onTodoCheckBoxClick(position: Int, checked: Boolean) {
-                onUpdateCheckedTodo(position, checked)
-            }
-        }).apply {
-        }
+        mAdapter =
+            TodoAdapter(TodoModel.getInstance(requireContext()).getAll(), object : TodoItemListener {
+                override fun onCheckBoxClick(position: Int, checked: Boolean) {
+                    onUpdateCheckedTodo(position, checked)
+                }
+            })
 
         binding.rvTodo.let {
             it.adapter = mAdapter
@@ -227,7 +228,7 @@ class TodosFragment : Fragment(), TodosContract.View {
                 else tvContents.paintFlags = 0
 
                 cbTodo.setOnClickListener {
-                    itemListener.onTodoCheckBoxClick(adapterPosition, cbTodo.isChecked)
+                    itemListener.onCheckBoxClick(adapterPosition, cbTodo.isChecked)
                 }
             }
         }
@@ -247,6 +248,6 @@ class TodosFragment : Fragment(), TodosContract.View {
     }
 
     interface TodoItemListener {
-        fun onTodoCheckBoxClick(position: Int, checked: Boolean)
+        fun onCheckBoxClick(position: Int, checked: Boolean)
     }
 }

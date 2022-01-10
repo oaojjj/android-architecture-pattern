@@ -38,7 +38,5 @@ interface MainContract {
         var addEditTodoPresenter: AddEditTodoPresenter
 
         fun setFragmentPresenter(vararg presenters: BasePresenter)
-
-        fun addTodo()
     }
 }

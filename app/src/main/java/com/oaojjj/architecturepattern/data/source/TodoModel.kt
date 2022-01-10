@@ -1,15 +1,20 @@
-package com.oaojjj.architecturepattern.model
+package com.oaojjj.architecturepattern.data.source
 
 import android.content.Context
+import com.oaojjj.architecturepattern.data.Todo
+import com.oaojjj.architecturepattern.data.source.local.TodoDao
+import com.oaojjj.architecturepattern.data.source.local.TodoDatabase
 
 // model
 object TodoModel {
 
     private var db: TodoDao? = null
 
-    fun instantiate(context: Context) {
-        db = db ?: TodoDatabase.getInstance(context).todoDao().apply { db = this }
-        mDataList = getAll()
+    fun getInstance(context: Context): TodoDao {
+        if (db == null) {
+            db = TodoDatabase.getInstance(context).todoDao()
+        }
+        return db!!
     }
 
     private var mDataList: MutableList<Todo> = mutableListOf()
@@ -25,7 +30,7 @@ object TodoModel {
 
     fun getData(pos: Int) = mDataList[pos]
 
-    fun getAll(): MutableList<Todo> = db?.getAll()!!
+    fun getAll(): MutableList<Todo>? = db?.getAll()
 
     /**
      * 사용자 이벤트 발생 하고 호출되는 메소드(callback)
