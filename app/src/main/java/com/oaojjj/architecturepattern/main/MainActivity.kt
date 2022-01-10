@@ -12,15 +12,16 @@ import com.oaojjj.architecturepattern.R
 import com.oaojjj.architecturepattern.databinding.ActivityMainBinding
 import com.oaojjj.architecturepattern.addedittodo.AddEditTodoFragment
 import com.oaojjj.architecturepattern.addedittodo.AddEditTodoPresenter
+import com.oaojjj.architecturepattern.main.MainContract.View.Companion.ADD_EDIT_TODO_FRAGMENT_TAG
+import com.oaojjj.architecturepattern.main.MainContract.View.Companion.TODOS_FRAGMENT_TAG
 import com.oaojjj.architecturepattern.todos.TodosFragment
 import com.oaojjj.architecturepattern.todos.TodosPresenter
 import com.oaojjj.architecturepattern.util.FragmentFactoryImpl
 import com.oaojjj.architecturepattern.util.Injection
 
+
 class MainActivity : AppCompatActivity(), MainContract.View {
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
-
-    override var mCurrentFragment: Fragment? = null
 
     override var presenter: MainContract.Presenter = MainPresenter(view = this)
 
@@ -37,17 +38,17 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
         // set floating button listener
         binding.fabMain.setOnClickListener {
-            when (mCurrentFragment) {
-                is TodosFragment -> showAddEditTodoFragment()
+            when (getCurrentFragment()) {
+                is TodosFragment -> navigateAddEditFragment()
                 is AddEditTodoFragment -> {
                     presenter.addEditTodoPresenter.saveTodo()
-                    showAddEditTodoFragment()
+                    navigateTodosFragment()
                 }
             }
         }
 
         // hosting todosFragment on mainActivity
-        showTodosFragment()
+        navigateTodosFragment()
     }
 
     override fun getFragmentByName(name: String) =
@@ -55,6 +56,9 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             classLoader,
             name
         )
+
+    override fun getCurrentFragment(): Fragment? =
+        supportFragmentManager.findFragmentById(R.id.fl_container_main)
 
     override fun onSaveInstanceState(outState: Bundle) {
         Log.d("lifecycle_MainActivity", "onSaveInstanceState: ")
@@ -98,66 +102,61 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
     /**
      * View
-     * change bottom fab position(fab, bottomAbbBar)
+     * Show&Navigate Fragment
      */
-    override fun showBottomAnimation(ResId: Int, fabAlignmentMode: Int) {
-        binding.babMain.fabAlignmentMode = fabAlignmentMode
-
-        Handler(Looper.getMainLooper()).postDelayed({
-            binding.fabMain.setImageDrawable(
-                ContextCompat.getDrawable(this@MainActivity, ResId)
-            )
-        }, 300)
+    override fun navigateTodosFragment() {
+        instantiateTodosFragment()
+        showTodosFragment()
     }
 
-    /**
-     * View
-     * Fragment 이동
-     */
-    override fun showTodosFragment() {
-        val todosFragment = getFragmentByName(TodosFragment::class.java.name) as TodosFragment
+    override fun navigateAddEditFragment() {
+        instantiateAddEditFragment()
+        showAddEditTodoFragment()
+    }
 
+    override fun instantiateTodosFragment() {
         presenter.setFragmentPresenter(
             TodosPresenter(
                 Injection.provideTodoRepository(applicationContext),
-                todosFragment
+                getFragmentByName(TodosFragment::class.java.name) as TodosFragment
             )
         )
+    }
+
+    override fun instantiateAddEditFragment() {
+        presenter.setFragmentPresenter(
+            AddEditTodoPresenter(
+                Injection.provideTodoRepository(applicationContext),
+                getFragmentByName(AddEditTodoFragment::class.java.name) as AddEditTodoFragment
+            )
+        )
+    }
+
+    override fun showTodosFragment() {
+        val todosFragment = presenter.todosPresenter.getView()
 
         if (!todosFragment.isAdded) {
             supportFragmentManager.beginTransaction().add(
                 R.id.fl_container_main,
                 todosFragment,
-                MainContract.View.TODOS_FRAGMENT_TAG
+                TODOS_FRAGMENT_TAG
             ).commit()
         }
-
-        mCurrentFragment = todosFragment
-        showBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER)
+        changeFabIconToPlus()
     }
 
     override fun showAddEditTodoFragment() {
-        val addEditTodoFragment =
-            getFragmentByName(AddEditTodoFragment::class.java.name) as AddEditTodoFragment
-
-        presenter.setFragmentPresenter(
-            AddEditTodoPresenter(
-                Injection.provideTodoRepository(applicationContext),
-                addEditTodoFragment
-            )
-        )
+        val addEditTodoFragment = presenter.addEditTodoPresenter.getView()
 
         supportFragmentManager.beginTransaction()
-            .addToBackStack(MainContract.View.ADD_EDIT_TODO_FRAGMENT_TAG)
+            .addToBackStack(ADD_EDIT_TODO_FRAGMENT_TAG)
             .setCustomAnimations(
                 R.anim.enter_from_left,
                 R.anim.exit_to_right,
                 R.anim.enter_from_right,
                 R.anim.exit_to_left
             ).replace(R.id.fl_container_main, addEditTodoFragment).commit()
-
-        mCurrentFragment = addEditTodoFragment
-        showBottomAnimation(R.drawable.check, BottomAppBar.FAB_ALIGNMENT_MODE_END)
+        changeFabIconToCheck()
     }
 
     /**
@@ -174,5 +173,24 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
     override fun setExpandedAppBarLayout(isExpended: Boolean) {
         binding.appBarLayout.setExpanded(isExpended)
+    }
+
+    override fun changeFabIconToPlus() {
+        showBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER)
+
+    }
+
+    override fun changeFabIconToCheck() {
+        showBottomAnimation(R.drawable.check, BottomAppBar.FAB_ALIGNMENT_MODE_END)
+    }
+
+    override fun showBottomAnimation(ResId: Int, fabAlignmentMode: Int) {
+        binding.babMain.fabAlignmentMode = fabAlignmentMode
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            binding.fabMain.setImageDrawable(
+                ContextCompat.getDrawable(this@MainActivity, ResId)
+            )
+        }, 300)
     }
 }

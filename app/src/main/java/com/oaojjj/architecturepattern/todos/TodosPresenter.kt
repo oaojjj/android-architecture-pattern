@@ -7,7 +7,7 @@ import com.oaojjj.architecturepattern.data.source.TodoRepository
 class TodosPresenter(val todoRepository: TodoRepository, val view: TodosContract.View) :
     TodosContract.Presenter {
 
-    fun getView(): Fragment = view as TodosFragment
+    fun getView(): TodosFragment = view as TodosFragment
     override fun removeTodo() {
         TODO("Not yet implemented")
     }

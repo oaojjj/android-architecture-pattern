@@ -6,6 +6,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.*
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.oaojjj.architecturepattern.R
@@ -20,10 +21,21 @@ class AddEditTodoFragment(private val mainPresenter: MainPresenter) : Fragment()
 
     override lateinit var presenter: AddEditTodoContract.Presenter
 
+    /**
+     * Fragment BackPressed Callback
+     */
+    private val backPressedCallback: OnBackPressedCallback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+
+        }
+
+    }
+
     override fun onAttach(context: Context) {
         Log.d("lifecycle_AddEdit", "onAttach: ")
-        setHasOptionsMenu(true)
         super.onAttach(context)
+        setHasOptionsMenu(true)
+        requireActivity().onBackPressedDispatcher.addCallback(this, backPressedCallback)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -97,6 +109,7 @@ class AddEditTodoFragment(private val mainPresenter: MainPresenter) : Fragment()
     override fun onDetach() {
         Log.d("lifecycle_AddEdit", "onDetach: ")
         super.onDetach()
+        backPressedCallback.remove()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -107,7 +120,8 @@ class AddEditTodoFragment(private val mainPresenter: MainPresenter) : Fragment()
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
-                Log.d("TodosFragment", "onOptionsItemSelected: home")
+                parentFragmentManager.popBackStack()
+                mainPresenter.view.changeFabIconToPlus()
             }
             R.id.save_todo -> {
                 // TODO: 2021-10-27
