@@ -6,7 +6,7 @@ import com.oaojjj.architecturepattern.BaseView
 
 interface AddEditTodoContract {
     interface View : BaseView<Presenter> {
-
+        fun showInput()
     }
 
     interface Presenter : BasePresenter {

@@ -2,35 +2,48 @@ package com.oaojjj.architecturepattern.todos
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Paint
 import android.os.Bundle
 import android.util.Log
 import android.view.*
-import android.widget.CheckBox
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.oaojjj.architecturepattern.R
-import com.oaojjj.architecturepattern.data.source.TodoModel
 
-import com.oaojjj.architecturepattern.util.SwipeHelper
 import com.oaojjj.architecturepattern.databinding.FragmentTodosBinding
-import com.oaojjj.architecturepattern.todos.UnderlayButton.OnUnderlayButtonClickListener
 import com.oaojjj.architecturepattern.data.Todo
+import com.oaojjj.architecturepattern.databinding.ItemTodoBinding
+import com.oaojjj.architecturepattern.main.MainPresenter
 
 
-class TodosFragment : Fragment(), TodosContract.View {
-    private lateinit var binding: FragmentTodosBinding
+class TodosFragment(private val mainPresenter: MainPresenter) : Fragment(), TodosContract.View {
+    private var _binding: FragmentTodosBinding? = null
+    private val binding get() = _binding!!
+
     override lateinit var presenter: TodosContract.Presenter
 
-    // itemTouchHelper
-    private lateinit var itemTouchHelper: ItemTouchHelper
-    private lateinit var mAdapter: TodoAdapter
+    /**
+     * Listener for clicks on todos in the RecyclerView.
+     */
+    private var itemListener: TodoItemListener = object : TodoItemListener {
+
+        override fun onTodoClick(clickedTodo: Todo) {
+            presenter.openTodoDetails(clickedTodo)
+        }
+
+        override fun onCompleteTodoClick(completedTodo: Todo) {
+            presenter.completeTodo(completedTodo)
+        }
+
+        override fun onActivateTodoClick(activatedTodo: Todo) {
+            presenter.activateTodo(activatedTodo)
+        }
+
+    }
+
+    private var listAdapter: TodoAdapter = TodoAdapter(ArrayList(0), itemListener)
 
     override fun onAttach(context: Context) {
         Log.d("lifecycle_TodosFragment", "onAttach: ")
@@ -40,6 +53,7 @@ class TodosFragment : Fragment(), TodosContract.View {
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d("lifecycle_TodosFragment", "onCreate: ")
         super.onCreate(savedInstanceState)
+        presenter = mainPresenter.todosPresenter
     }
 
     override fun onCreateView(
@@ -47,7 +61,7 @@ class TodosFragment : Fragment(), TodosContract.View {
         savedInstanceState: Bundle?
     ): View? {
         Log.d("lifecycle_TodosFragment", "onCreateView: ")
-        binding = FragmentTodosBinding.inflate(inflater, container, false)
+        _binding = FragmentTodosBinding.inflate(inflater, container, false)
 
         // set up the toolbar
         val supportActionbar = (requireActivity() as AppCompatActivity).supportActionBar
@@ -60,58 +74,12 @@ class TodosFragment : Fragment(), TodosContract.View {
         super.onViewCreated(view, savedInstanceState)
         Log.d("lifecycle_TodosFragment", "onViewCreated: ")
 
-        // init data, adapter
-        mAdapter =
-            TodoAdapter(TodoModel.getInstance(requireContext()).getAll(), object : TodoItemListener {
-                override fun onCheckBoxClick(position: Int, checked: Boolean) {
-                    onUpdateCheckedTodo(position, checked)
-                }
-            })
-
-        binding.rvTodo.let {
-            it.adapter = mAdapter
-            it.layoutManager = LinearLayoutManager(requireContext())
-            it.addItemDecoration(DividerItemDecoration(it.context, 1))
+        with(binding.rvTodo) {
+            adapter = listAdapter
+            layoutManager = LinearLayoutManager(requireContext())
+            addItemDecoration(DividerItemDecoration(requireContext(), 1))
         }
 
-        // attach itemTouchHelper to recyclerview
-        itemTouchHelper = ItemTouchHelper(object : SwipeHelper(requireContext(), binding.rvTodo) {
-            override fun instantiateUnderlayButton(
-                vh: RecyclerView.ViewHolder,
-                buttons: MutableList<UnderlayButton>
-            ) {
-                buttons.add(
-                    UnderlayButton(
-                        text = "삭제",
-                        background = ContextCompat.getColor(
-                            requireContext(),
-                            R.color.colorDelete
-                        ),
-                        listener = object : OnUnderlayButtonClickListener {
-                            override fun onUnderlayButtonClick(pos: Int) {
-                                onRemoveTodo(pos)
-                            }
-                        }
-                    )
-                )
-                buttons.add(
-                    UnderlayButton(
-                        text = "수정",
-                        background = ContextCompat.getColor(
-                            requireContext(),
-                            R.color.colorEdit
-                        ),
-                        listener = object : OnUnderlayButtonClickListener {
-                            override fun onUnderlayButtonClick(pos: Int) {
-                                showUpdateTodoDialog(pos)
-                            }
-                        }
-                    )
-                )
-            }
-
-        })
-        itemTouchHelper.attachToRecyclerView(binding.rvTodo)
     }
 
     override fun onStart() {
@@ -142,6 +110,7 @@ class TodosFragment : Fragment(), TodosContract.View {
     override fun onDestroyView() {
         Log.d("lifecycle_TodosFragment", "onDestroyView: ")
         super.onDestroyView()
+        _binding = null
     }
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
@@ -159,50 +128,11 @@ class TodosFragment : Fragment(), TodosContract.View {
         super.onDetach()
     }
 
-    // View
-    private fun showUpdateTodoDialog(pos: Int) {
-        /* UpdateTodoDialog(
-             object : OnUpdateTodoListener {
-                 override fun onUpdateFinished() {
-                     mAdapter.notifyItemChanged(pos)
-                 }
-             }, pos
-         ).show(parentFragmentManager, null)*/
+    override fun showTodoDetailsUi(id: Long?) {
+
     }
 
-    /**
-     * 사용자 이벤트 발생 하고 호출되는 메소드(callback)
-     * add, remove, update ...등
-     * controller -> Model 에 요청
-     * Model 에서 데이터를 조작 후 View 는 UI만 갱신(observable)
-     */
-
-    // 데이터 삭제
-    private fun onRemoveTodo(pos: Int) {
-        Thread {
-            TodoModel.removeTodo(pos)
-            requireActivity().runOnUiThread {
-                mAdapter.notifyItemRemoved(pos)
-                mAdapter.notifyItemRangeChanged(pos, TodoModel.size())
-            }
-        }.start()
-        // (requireActivity() as MainActivity).showBottomAppBar(true)
-    }
-
-    // 데이터 수정(체크 유무)
-    private fun onUpdateCheckedTodo(position: Int, checked: Boolean) {
-        Thread {
-            TodoModel.updateChecked(position, checked)
-            requireActivity().runOnUiThread { mAdapter.notifyItemChanged(position) }
-        }.start()
-    }
-
-
-    override fun updateTodosView(item: MutableList<Todo>, position: Int) {
-        TODO("Not yet implemented")
-    }
-
-    private inner class TodoAdapter(
+    private class TodoAdapter(
         todos: List<Todo>,
         private val itemListener: TodoItemListener
     ) : RecyclerView.Adapter<TodoAdapter.TodoViewHolder>() {
@@ -214,29 +144,36 @@ class TodosFragment : Fragment(), TodosContract.View {
                 notifyDataSetChanged()
             }
 
-        inner class TodoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-            private val cbTodo: CheckBox = itemView.findViewById(R.id.cb_todo)
-            private val tvContents: TextView = itemView.findViewById(R.id.tv_todo_contents)
+        inner class TodoViewHolder(val binding: ItemTodoBinding) :
+            RecyclerView.ViewHolder(binding.root) {
 
-            fun bind(item: Todo) {
-                cbTodo.isChecked = item.checked
-                tvContents.text = item.content
+            fun bind(todo: Todo) {
+                with(binding) {
+                    cbTodo.isChecked = todo.isCompleted
+                    tvTodoContents.text = todo.content
+
+                    if (todo.isCompleted) {
+                        itemListener.onCompleteTodoClick(todo)
+                    } else {
+                        itemListener.onActivateTodoClick(todo)
+                    }
+                }
+                itemView.setOnClickListener { itemListener.onTodoClick(todo) }
 
                 // 취소선
-                if (cbTodo.isChecked) tvContents.paintFlags =
-                    tvContents.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
-                else tvContents.paintFlags = 0
-
-                cbTodo.setOnClickListener {
-                    itemListener.onCheckBoxClick(adapterPosition, cbTodo.isChecked)
-                }
+//                if (cbTodo.isChecked) tvContents.paintFlags =
+//                    tvContents.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+//                else tvContents.paintFlags = 0
             }
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TodoViewHolder {
-            val view =
-                LayoutInflater.from(parent.context).inflate(R.layout.item_todo, parent, false)
-            return TodoViewHolder(view)
+
+            return TodoViewHolder(
+                ItemTodoBinding.bind(
+                    LayoutInflater.from(parent.context).inflate(R.layout.item_todo, parent, false)
+                )
+            )
         }
 
         override fun onBindViewHolder(holder: TodoViewHolder, position: Int) {
@@ -248,6 +185,11 @@ class TodosFragment : Fragment(), TodosContract.View {
     }
 
     interface TodoItemListener {
-        fun onCheckBoxClick(position: Int, checked: Boolean)
+
+        fun onTodoClick(clickedTodo: Todo)
+
+        fun onCompleteTodoClick(completedTodo: Todo)
+
+        fun onActivateTodoClick(activatedTodo: Todo)
     }
 }

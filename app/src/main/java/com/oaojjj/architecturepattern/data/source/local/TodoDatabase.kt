@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.oaojjj.architecturepattern.data.Todo
 
-@Database(entities = [Todo::class], version = 2)
+@Database(entities = [Todo::class], version = 1)
 abstract class TodoDatabase : RoomDatabase() {
     abstract fun todoDao(): TodoDao
 
@@ -18,9 +18,8 @@ abstract class TodoDatabase : RoomDatabase() {
                 Room.databaseBuilder(
                     context.applicationContext,
                     TodoDatabase::class.java,
-                    "TodoDatabase"
+                    "todos.db"
                 ).fallbackToDestructiveMigration()
-                    .allowMainThreadQueries()
                     .build()
                     .apply { INSTANCE = this }
             }

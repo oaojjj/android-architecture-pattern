@@ -14,59 +14,47 @@ import com.oaojjj.architecturepattern.addedittodo.AddEditTodoFragment
 import com.oaojjj.architecturepattern.addedittodo.AddEditTodoPresenter
 import com.oaojjj.architecturepattern.todos.TodosFragment
 import com.oaojjj.architecturepattern.todos.TodosPresenter
-import com.oaojjj.architecturepattern.util.AppExecutors
 import com.oaojjj.architecturepattern.util.FragmentFactoryImpl
+import com.oaojjj.architecturepattern.util.Injection
 
 class MainActivity : AppCompatActivity(), MainContract.View {
-    private lateinit var binding: ActivityMainBinding
+    private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
 
     override var mCurrentFragment: Fragment? = null
 
-    override lateinit var presenter: MainContract.Presenter
+    override var presenter: MainContract.Presenter = MainPresenter(view = this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        supportFragmentManager.fragmentFactory = FragmentFactoryImpl()
-        super.onCreate(savedInstanceState)
-        Log.d("lifecycle_MainActivity", "onCreate: ")
+        // instantiate fragmentFactory
+        supportFragmentManager.fragmentFactory = FragmentFactoryImpl(presenter)
 
-        binding = ActivityMainBinding.inflate(layoutInflater)
+        Log.d("lifecycle_MainActivity", "onCreate: ")
+        super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
         // set up the toolbar
         setSupportActionBar(binding.toolbarMain)
 
-        // create view(fragment) & create the presenter
-        presenter = MainPresenter(view = this).apply {
-            setFragmentPresenter(
-                TodosPresenter(
-                    view = supportFragmentManager.fragmentFactory.instantiate(
-                        classLoader,
-                        TodosFragment::class.java.name
-                    ) as TodosFragment
-                ),
-                AddEditTodoPresenter(
-                    view = supportFragmentManager.fragmentFactory.instantiate(
-                        classLoader,
-                        AddEditTodoFragment::class.java.name
-                    ) as AddEditTodoFragment
-                )
-            )
-        }
-
         // set floating button listener
         binding.fabMain.setOnClickListener {
             when (mCurrentFragment) {
-                is TodosFragment -> navigateAddEditTodoFragment()
+                is TodosFragment -> showAddEditTodoFragment()
                 is AddEditTodoFragment -> {
                     presenter.addEditTodoPresenter.saveTodo()
-                    navigateAddEditTodoFragment()
+                    showAddEditTodoFragment()
                 }
             }
         }
 
         // hosting todosFragment on mainActivity
-        navigateTodosFragment()
+        showTodosFragment()
     }
+
+    override fun getFragmentByName(name: String) =
+        supportFragmentManager.fragmentFactory.instantiate(
+            classLoader,
+            name
+        )
 
     override fun onSaveInstanceState(outState: Bundle) {
         Log.d("lifecycle_MainActivity", "onSaveInstanceState: ")
@@ -115,21 +103,26 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     override fun showBottomAnimation(ResId: Int, fabAlignmentMode: Int) {
         binding.babMain.fabAlignmentMode = fabAlignmentMode
 
-        Handler(Looper.getMainLooper()).apply {
-            postDelayed({
-                binding.fabMain.setImageDrawable(
-                    ContextCompat.getDrawable(this@MainActivity, ResId)
-                )
-            }, 300)
-        }
+        Handler(Looper.getMainLooper()).postDelayed({
+            binding.fabMain.setImageDrawable(
+                ContextCompat.getDrawable(this@MainActivity, ResId)
+            )
+        }, 300)
     }
 
     /**
      * View
      * Fragment 이동
      */
-    override fun navigateTodosFragment() {
-        val todosFragment = presenter.todosPresenter.getView()
+    override fun showTodosFragment() {
+        val todosFragment = getFragmentByName(TodosFragment::class.java.name) as TodosFragment
+
+        presenter.setFragmentPresenter(
+            TodosPresenter(
+                Injection.provideTodoRepository(applicationContext),
+                todosFragment
+            )
+        )
 
         if (!todosFragment.isAdded) {
             supportFragmentManager.beginTransaction().add(
@@ -138,12 +131,21 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                 MainContract.View.TODOS_FRAGMENT_TAG
             ).commit()
         }
+
         mCurrentFragment = todosFragment
         showBottomAnimation(R.drawable.add, BottomAppBar.FAB_ALIGNMENT_MODE_CENTER)
     }
 
-    override fun navigateAddEditTodoFragment() {
-        val addEditTodoFragment = presenter.addEditTodoPresenter.getView()
+    override fun showAddEditTodoFragment() {
+        val addEditTodoFragment =
+            getFragmentByName(AddEditTodoFragment::class.java.name) as AddEditTodoFragment
+
+        presenter.setFragmentPresenter(
+            AddEditTodoPresenter(
+                Injection.provideTodoRepository(applicationContext),
+                addEditTodoFragment
+            )
+        )
 
         supportFragmentManager.beginTransaction()
             .addToBackStack(MainContract.View.ADD_EDIT_TODO_FRAGMENT_TAG)

@@ -22,15 +22,17 @@ interface MainContract {
 
         var mCurrentFragment: Fragment?
 
-        fun navigateTodosFragment()
+        fun showTodosFragment()
 
-        fun navigateAddEditTodoFragment()
+        fun showAddEditTodoFragment()
 
         fun showBottomAppbar(isShow: Boolean)
 
         fun setExpandedAppBarLayout(isExpended: Boolean)
 
         fun showBottomAnimation(ResId: Int, fabAlignmentMode: Int)
+
+        fun getFragmentByName(name: String): Fragment
     }
 
     interface Presenter : BasePresenter {

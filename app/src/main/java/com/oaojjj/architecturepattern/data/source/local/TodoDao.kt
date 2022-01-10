@@ -20,6 +20,6 @@ interface TodoDao {
     @Delete
     fun delete(todo: Todo)
 
-    @Query("Update Todo SET checked = :checked WHERE id = :id")
+    @Query("Update Todo SET completed = :checked WHERE id = :id")
     fun updateChecked(id: Long?, checked: Boolean)
 }

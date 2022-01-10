@@ -4,13 +4,20 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity
-data class Todo(var content: String = "") {
-    @PrimaryKey(autoGenerate = true)
-    var id: Long? = null
+/**
+ * Model class for a task.
+ *
+ * @param content content of the task
+ * @param id      id of the task
+ */
+@Entity(tableName = "todo")
+data class Todo(
+    @ColumnInfo(name = "content") var content: String = "",
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "id") var id: Long? = null
+) {
+    @ColumnInfo(name = "completed")
+    var isCompleted: Boolean = false
 
-    @ColumnInfo(name = "checked")
-    var checked: Boolean = false
-
-    override fun toString(): String = content
+    val isEmpty
+        get() = content.isEmpty()
 }

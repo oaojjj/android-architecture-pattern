@@ -10,12 +10,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.oaojjj.architecturepattern.R
 import com.oaojjj.architecturepattern.databinding.FragmentAddEditTodoBinding
-import com.oaojjj.architecturepattern.listener.OnFinishedAddTodoListener
-import com.oaojjj.architecturepattern.data.source.TodoModel
+import com.oaojjj.architecturepattern.main.MainPresenter
 import com.oaojjj.architecturepattern.util.Util
 
-class AddEditTodoFragment : Fragment(), AddEditTodoContract.View, OnFinishedAddTodoListener {
-    private lateinit var binding: FragmentAddEditTodoBinding
+class AddEditTodoFragment(private val mainPresenter: MainPresenter) : Fragment(),
+    AddEditTodoContract.View {
+    private var _binding: FragmentAddEditTodoBinding? = null
+    private val binding get() = _binding!!
+
     override lateinit var presenter: AddEditTodoContract.Presenter
 
     override fun onAttach(context: Context) {
@@ -27,6 +29,7 @@ class AddEditTodoFragment : Fragment(), AddEditTodoContract.View, OnFinishedAddT
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d("lifecycle_AddEdit", "onCreate: ")
+        presenter = mainPresenter.addEditTodoPresenter
     }
 
     override fun onCreateView(
@@ -34,7 +37,7 @@ class AddEditTodoFragment : Fragment(), AddEditTodoContract.View, OnFinishedAddT
         savedInstanceState: Bundle?
     ): View? {
         Log.d("lifecycle_AddEdit", "onCreateView: ")
-        binding = FragmentAddEditTodoBinding.inflate(inflater, container, false)
+        _binding = FragmentAddEditTodoBinding.inflate(inflater, container, false)
 
         // set up the toolbar
         val supportActionbar = (requireActivity() as AppCompatActivity).supportActionBar
@@ -45,10 +48,14 @@ class AddEditTodoFragment : Fragment(), AddEditTodoContract.View, OnFinishedAddT
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         Log.d("lifecycle_AddEdit", "onViewCreated: ")
+        super.onViewCreated(view, savedInstanceState)
+        showInput()
+    }
+
+    override fun showInput() {
         Handler(Looper.getMainLooper()).postDelayed({
             Util.showInput(requireContext(), binding.etTodoContents)
         }, 300)
-        super.onViewCreated(view, savedInstanceState)
     }
 
     override fun onStart() {
@@ -99,7 +106,7 @@ class AddEditTodoFragment : Fragment(), AddEditTodoContract.View, OnFinishedAddT
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.home -> {
+            android.R.id.home -> {
                 Log.d("TodosFragment", "onOptionsItemSelected: home")
             }
             R.id.save_todo -> {
@@ -111,13 +118,9 @@ class AddEditTodoFragment : Fragment(), AddEditTodoContract.View, OnFinishedAddT
 
     override fun onDestroyView() {
         Log.d("lifecycle_AddEdit", "onDestroyView: ")
-        Util.hideInput(requireActivity().currentFocus)
         super.onDestroyView()
+        Util.hideInput(requireActivity().currentFocus)
+        _binding = null
     }
 
-    // Controller: MainActivity 에서 넘어온 이벤트 -> Model 데이터 추가 요청
-    override fun onFinishedAddTodo() {
-        Log.d("AddTodoFragment_TAG", "onFinishedAddTodo: ${binding.etTodoContents.text}")
-        Thread { TodoModel.addTodo(binding.etTodoContents.text.toString()) }.start()
-    }
 }

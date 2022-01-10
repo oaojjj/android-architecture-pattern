@@ -6,7 +6,8 @@ import com.oaojjj.architecturepattern.addedittodo.AddEditTodoPresenter
 import com.oaojjj.architecturepattern.todos.TodosContract
 import com.oaojjj.architecturepattern.todos.TodosPresenter
 
-class MainPresenter(val view: MainContract.View) : MainContract.Presenter {
+class MainPresenter(val view: MainContract.View) :
+    MainContract.Presenter {
     override lateinit var todosPresenter: TodosPresenter
     override lateinit var addEditTodoPresenter: AddEditTodoPresenter
 

@@ -13,7 +13,7 @@ const val THREAD_COUNT = 3
  * Grouping tasks like this avoids the effects of task starvation (e.g. disk reads don't wait behind
  * webservice requests).
  */
-class AppExecutors constructor(
+class AppExecutors(
     val diskIO: Executor = DiskIOThreadExecutor(),
     val networkIO: Executor = Executors.newFixedThreadPool(THREAD_COUNT),
     val mainThread: Executor = MainThreadExecutor()
