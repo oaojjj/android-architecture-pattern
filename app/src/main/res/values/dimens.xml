@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <dimen name="underlay_button_width">64dp</dimen>
-    <dimen name="check_box_size">24dp</dimen>
-</resources>

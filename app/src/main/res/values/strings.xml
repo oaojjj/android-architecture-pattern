@@ -1,5 +1,0 @@
-<resources>
-    <string name="app_name">ToDo-MVC</string>
-    <string name="todo_list">할 일 목록</string>
-    <string name="todo_add">할 일 추가</string>
-</resources>
