@@ -11,8 +11,8 @@ class FragmentFactoryImpl(presenter: MainContract.Presenter) : FragmentFactory()
     private val mainPresenter = presenter as MainPresenter
     override fun instantiate(classLoader: ClassLoader, className: String): Fragment {
         return when (className) {
-            GeneralsFragment::javaClass.name -> GeneralsFragment()
-            GeneralFragment::javaClass.name -> GeneralFragment()
+            GeneralsFragment::class.java.name -> GeneralsFragment(mainPresenter)
+            GeneralFragment::class.java.name -> GeneralFragment(mainPresenter)
             else -> super.instantiate(classLoader, className)
         }
     }

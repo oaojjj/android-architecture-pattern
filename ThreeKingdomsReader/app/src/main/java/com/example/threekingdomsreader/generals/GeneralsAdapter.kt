@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.threekingdomsreader.R
 import com.example.threekingdomsreader.data.General
 import com.example.threekingdomsreader.databinding.ItemGeneralBinding
+import com.example.threekingdomsreader.util.Utils
 
 class GeneralsAdapter(items: List<General>, private val itemListener: GeneralItemListener) :
     ListAdapter<General, GeneralsAdapter.GeneralViewHolder>(GeneralsDiffCallback) {
@@ -41,19 +42,12 @@ class GeneralsAdapter(items: List<General>, private val itemListener: GeneralIte
                 sexGeneral.text = general.sex
                 belongGeneral.text = general.belong
                 positionGeneral.text = general.position
-                setColorAccordingBelong(container, general.belong)
-            }
-        }
 
-        private fun setColorAccordingBelong(view: View, belong: String) {
-            val color = when (belong) {
-                "위" -> ContextCompat.getColor(binding.root.context, R.color.wei)
-                "촉" -> ContextCompat.getColor(binding.root.context, R.color.shu)
-                "오" -> ContextCompat.getColor(binding.root.context, R.color.wu)
-                else -> 0
-            }
+                Utils.getColorAccordingBelong(root.context, general.belong).let {
+                    container.setBackgroundColor(it)
+                }
 
-            view.setBackgroundColor(color)
+            }
         }
 
     }

@@ -41,6 +41,29 @@ class GeneralsRepository(
         }
     }
 
+
+    override fun getGeneral(generalId: Long?, callback: GeneralsDataSource.GetGeneralCallback) {
+        val generalInCache = cachedGenerals[generalId]
+
+        if (generalInCache != null) {
+            callback.onGeneralLoaded(generalInCache)
+            return
+        }
+
+        generalsLocalDataSource.getGeneral(generalId,
+            object : GeneralsDataSource.GetGeneralCallback {
+                override fun onGeneralLoaded(general: General) {
+                    cacheAndPerform(general) {
+                        callback.onGeneralLoaded(it)
+                    }
+                }
+
+                override fun onDataNotAvailable() {
+                    callback.onDataNotAvailable()
+                }
+            })
+    }
+
     private fun refreshCache(generals: List<General>) {
         cachedGenerals.clear()
         generals.forEach { cacheAndPerform(it) {} }
@@ -62,10 +85,6 @@ class GeneralsRepository(
         callback.onGeneralsLoaded(ArrayList(0))
     }
 
-
-    override fun getGeneral(generalId: Long, callback: GeneralsDataSource.GetGeneralCallback) {
-        TODO("Not yet implemented")
-    }
 
     override fun saveGeneral(general: General) {
         TODO("Not yet implemented")

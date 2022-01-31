@@ -15,12 +15,25 @@ interface GeneralDao {
      *
      * @return all generals.
      */
-    @Query("SELECT * FROM generals") fun getGenerals(): List<General>
+    @Query("SELECT * FROM generals")
+    fun getGenerals(): List<General>
 
     /**
-     * insert generals from the generals.json(init).
+     * Insert generals from the "generals.db".
+     *
+     * @param generals the generals to add
      */
     @Insert
-    fun addGenerals(generals:List<General>)
+    fun addGenerals(generals: List<General>)
+
+
+    /**
+     * Select a general by id.
+     *
+     * @param generalId the general id.
+     * @return the general with generalId.
+     */
+    @Query("SELECT * FROM generals WHERE id = :generalId")
+    fun getGeneralById(generalId: Long?): General?
 
 }

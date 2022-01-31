@@ -30,7 +30,7 @@
             android:paddingHorizontal="8dp"
             android:paddingVertical="4dp"
             android:textColor="@color/white"
-            android:textSize="20sp"
+            android:textSize="18sp"
             android:textStyle="bold"
             app:layout_constraintTop_toBottomOf="@+id/image_general" />
 
@@ -54,7 +54,7 @@
             android:paddingHorizontal="8dp"
             android:paddingVertical="4dp"
             android:textColor="@color/white"
-            android:textSize="18sp"
+            android:textSize="16sp"
             android:textStyle="bold"
             app:layout_constraintTop_toBottomOf="@+id/name_general" />
 
@@ -65,6 +65,7 @@
             android:layout_marginEnd="8dp"
             android:hint="직위"
             android:textColor="@color/white"
+            android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="@+id/belong_general"
             app:layout_constraintEnd_toEndOf="@+id/belong_general"
             app:layout_constraintTop_toTopOf="@+id/belong_general" />

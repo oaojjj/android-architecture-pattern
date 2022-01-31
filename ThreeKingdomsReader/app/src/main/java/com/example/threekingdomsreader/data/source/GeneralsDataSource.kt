@@ -13,14 +13,14 @@ interface GeneralsDataSource {
 
     interface GetGeneralCallback {
 
-        fun onGeneralLoaded()
+        fun onGeneralLoaded(general: General)
 
         fun onDataNotAvailable()
     }
 
     fun getGenerals(callback: LoadGeneralsCallback)
 
-    fun getGeneral(generalId: Long, callback: GetGeneralCallback)
+    fun getGeneral(generalId: Long?, callback: GetGeneralCallback)
 
     fun saveGeneral(general: General)
 
