@@ -1,5 +1,4 @@
 package com.example.threekingdomsreader.data.source.local
-
 import com.example.threekingdomsreader.data.General
 import com.example.threekingdomsreader.data.source.GeneralsDataSource
 import com.example.threekingdomsreader.util.AppExecutors

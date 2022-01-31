@@ -1,7 +1,9 @@
 package com.example.threekingdomsreader.generals
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -34,13 +36,24 @@ class GeneralsAdapter(items: List<General>, private val itemListener: GeneralIte
 
         fun bind(general: General) {
             currentGeneral = general
-
             with(binding) {
                 nameGeneral.text = general.name
                 sexGeneral.text = general.sex
                 belongGeneral.text = general.belong
                 positionGeneral.text = general.position
+                setColorAccordingBelong(container, general.belong)
             }
+        }
+
+        private fun setColorAccordingBelong(view: View, belong: String) {
+            val color = when (belong) {
+                "위" -> ContextCompat.getColor(binding.root.context, R.color.wei)
+                "촉" -> ContextCompat.getColor(binding.root.context, R.color.shu)
+                "오" -> ContextCompat.getColor(binding.root.context, R.color.wu)
+                else -> 0
+            }
+
+            view.setBackgroundColor(color)
         }
 
     }

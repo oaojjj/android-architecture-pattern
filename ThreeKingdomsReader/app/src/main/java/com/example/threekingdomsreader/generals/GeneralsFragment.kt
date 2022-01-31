@@ -6,12 +6,14 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.threekingdomsreader.R
 import com.example.threekingdomsreader.data.General
 import com.example.threekingdomsreader.databinding.FragmentGeneralsBinding
 import com.example.threekingdomsreader.main.MainActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
 
 class GeneralsFragment : Fragment(), GeneralsContract.View {
     private var _binding: FragmentGeneralsBinding? = null
@@ -64,6 +66,7 @@ class GeneralsFragment : Fragment(), GeneralsContract.View {
 
     override fun onResume() {
         super.onResume()
+        Log.d("database", "onResume")
         presenter.start()
     }
 
@@ -73,12 +76,9 @@ class GeneralsFragment : Fragment(), GeneralsContract.View {
     }
 
     override fun setLoadingIndicator(active: Boolean) {
-        // set the swipeRefreshLayout
         with(binding.srlGenerals) {
             post { isRefreshing = active }
         }
-
-
     }
 
     override fun showGenerals(generals: List<General>) {
@@ -100,8 +100,13 @@ class GeneralsFragment : Fragment(), GeneralsContract.View {
 
 
     override fun showLoadingGeneralsError() {
-        TODO("Not yet implemented")
+        showMessage(getString(R.string.loading_generals_error))
     }
+
+    private fun showMessage(message: String) {
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+    }
+
 
     override fun showAllGeneralsFilterText() {
         (requireActivity() as MainActivity).title = resources.getString(R.string.text_all)

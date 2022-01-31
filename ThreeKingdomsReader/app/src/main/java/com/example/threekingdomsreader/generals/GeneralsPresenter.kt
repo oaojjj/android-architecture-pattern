@@ -55,6 +55,7 @@ class GeneralsPresenter(
                     }
                 }
 
+                Log.d("database", "onGeneralsLoaded: ${view.isActive}")
                 // View가 더 이상 UI 업데이트를 처리하지 못할 수 있다.
                 if (!view.isActive) return
 

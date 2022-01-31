@@ -1,5 +1,6 @@
 package com.example.threekingdomsreader.data
 
+import android.util.Log
 import com.example.threekingdomsreader.data.source.GeneralsDataSource
 import java.util.LinkedHashMap
 
@@ -21,6 +22,7 @@ class GeneralsRepository(
             return
         }
 
+        Log.d("database", "getGenerals: $cacheIsDirty")
         if (cacheIsDirty) {
             // 갱신이 필요하면 네트워크에서 새 데이터를 가져온다.
             getGeneralsFromRemoteDataSource(callback)
@@ -39,12 +41,6 @@ class GeneralsRepository(
         }
     }
 
-    // 네트워크에 데이터 요청
-    private fun getGeneralsFromRemoteDataSource(callback: GeneralsDataSource.LoadGeneralsCallback) {
-
-    }
-
-
     private fun refreshCache(generals: List<General>) {
         cachedGenerals.clear()
         generals.forEach { cacheAndPerform(it) {} }
@@ -58,6 +54,13 @@ class GeneralsRepository(
             cachedGenerals[cachedGeneral.id] = cachedGeneral
             perform(cachedGeneral)
         }
+
+
+    // 네트워크에 데이터 요청
+    private fun getGeneralsFromRemoteDataSource(callback: GeneralsDataSource.LoadGeneralsCallback) {
+        // only local이기 때문에 데이터가 없다고 반환
+        callback.onGeneralsLoaded(ArrayList(0))
+    }
 
 
     override fun getGeneral(generalId: Long, callback: GeneralsDataSource.GetGeneralCallback) {

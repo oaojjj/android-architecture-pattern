@@ -2,6 +2,7 @@ package com.example.threekingdomsreader.main
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import androidx.annotation.IdRes
 import com.example.threekingdomsreader.R
 import com.example.threekingdomsreader.data.source.local.GeneralDatabase
@@ -9,7 +10,6 @@ import com.example.threekingdomsreader.generals.GeneralsFragment
 import com.example.threekingdomsreader.generals.GeneralsPresenter
 import com.example.threekingdomsreader.util.FragmentFactoryImpl
 import com.example.threekingdomsreader.util.Injection
-import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity(), MainContract.View {
     override var isActive: Boolean = false
@@ -32,14 +32,12 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         // create the presenter, fragment
         presenter.setFragmentPresenter(
             GeneralsPresenter(
-                Injection.provideTodoRepository(applicationContext),
-                getFragmentByName(
+                Injection.provideTodoRepository(applicationContext), getFragmentByName(
                     GeneralsFragment::javaClass.name,
                     R.id.fl_main_container
                 ) as GeneralsFragment
             )
         )
-
     }
 
     private fun getFragmentByName(name: String, @IdRes frameId: Int) =
