@@ -1,12 +1,13 @@
 package com.example.threekingdomsreader.main
 
+import android.graphics.Color
+import android.graphics.PorterDuff
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import androidx.annotation.IdRes
 import androidx.fragment.app.Fragment
 import com.example.threekingdomsreader.R
-import com.example.threekingdomsreader.data.General
 import com.example.threekingdomsreader.general.GeneralFragment
 import com.example.threekingdomsreader.general.GeneralPresenter
 import com.example.threekingdomsreader.generals.GeneralsFragment
@@ -34,14 +35,20 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
         // set up the toolbar
         setSupportActionBar(findViewById(R.id.toolbar)).run {
-            title = "삼국지 무장 목록"
+            title = "삼국지"
         }
+
+        // change only overflow menu icon color
+        findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar).overflowIcon?.setColorFilter(
+            Color.WHITE,
+            PorterDuff.Mode.SRC_ATOP
+        )
 
         showGenerals()
 
         val generalId = savedInstanceState?.getLong(GENERAL_BUNDLE_KEY)
         if (generalId != null && generalId > 0)
-            showGeneral(General(id = generalId))
+            showGeneral(generalId)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -54,7 +61,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         val fn = GeneralsFragment::class.java.name
         val generalsFragment =
             supportFragmentManager.findFragmentByTag(fn) as GeneralsFragment?
-                ?: replaceFragmentInActivity(fn, R.id.fl_main_container) as GeneralsFragment
+                ?: addFragmentToActivity(fn, R.id.fl_main_container) as GeneralsFragment
 
         // create the presenter
         val generalsPresenter = GeneralsPresenter(
@@ -65,15 +72,15 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         presenter.setFragmentPresenter(generalsPresenter)
     }
 
-    override fun showGeneral(general: General?) {
+    override fun showGeneral(generalId: Long?) {
         val fn = GeneralFragment::class.java.name
         // create the fragment
         val generalFragment = supportFragmentManager.findFragmentByTag(fn) as GeneralFragment?
-            ?: addFragmentToActivity(fn, R.id.fl_main_container) as GeneralFragment
+            ?: replaceFragmentInActivity(fn, R.id.fl_main_container) as GeneralFragment
 
         // create the presenter
         val generalPresenter = GeneralPresenter(
-            general?.id,
+            generalId,
             Injection.provideTodoRepository(applicationContext),
             generalFragment
         )
@@ -92,23 +99,19 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     private fun replaceFragmentInActivity(name: String, @IdRes frameId: Int): Fragment =
         with(supportFragmentManager) {
             fragmentFactory.instantiate(classLoader, name).also {
-                beginTransaction().replace(frameId, it, name).commit()
+                beginTransaction().replace(frameId, it, name).addToBackStack(name).commit()
             }
         }
 
     private fun addFragmentToActivity(name: String, @IdRes frameId: Int): Fragment =
         with(supportFragmentManager) {
             fragmentFactory.instantiate(classLoader, name).also {
-                beginTransaction().add(frameId, it, name).addToBackStack(null).commit()
+                beginTransaction().add(frameId, it, name).commit()
             }
         }
 
     override fun onDestroy() {
         super.onDestroy()
         Log.d("mainLife", "onDestroy: ")
-    }
-
-    companion object {
-        const val GENERAL_BUNDLE_KEY = "GENERAL_BUNDLE_KEY"
     }
 }

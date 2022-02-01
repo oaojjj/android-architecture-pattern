@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <group>
+        <item
+            android:id="@+id/save_general"
+            android:icon="@drawable/ic_save"
+            android:title="저장"
+            app:showAsAction="never|withText" />
+        <item
+            android:id="@+id/edit_general"
+            android:icon="@drawable/ic_edit"
+            android:title="변경"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/delete_general"
+            android:icon="@drawable/ic_delete"
+            android:title="삭제"
+            app:showAsAction="never" />
+    </group>
+</menu>

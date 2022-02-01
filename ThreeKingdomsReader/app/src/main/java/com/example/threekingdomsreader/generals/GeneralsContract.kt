@@ -11,7 +11,7 @@ interface GeneralsContract {
 
         fun showGenerals(generals: List<General>)
 
-        fun showGeneral(general: General)
+        fun showGeneral(generalId: Long?)
 
         fun showNoGenerals()
 
@@ -31,5 +31,6 @@ interface GeneralsContract {
         fun addGeneral()
 
         fun openGeneral(requestGeneral: General)
+
     }
 }

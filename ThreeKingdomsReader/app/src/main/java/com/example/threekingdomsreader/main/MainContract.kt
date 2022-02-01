@@ -10,7 +10,7 @@ interface MainContract {
     interface View : BaseView<Presenter> {
         fun showGenerals()
 
-        fun showGeneral(general: General?)
+        fun showGeneral(generalId: Long?)
 
         fun fabHide()
 
@@ -25,7 +25,7 @@ interface MainContract {
 
         fun setFragmentPresenter(vararg presenters: BasePresenter)
 
-        fun addEditDetailGeneral(general: General?)
+        fun addEditDetailGeneral(generalId: Long?)
 
         fun scrollControl(scrollY: Int, oldY: Int)
     }

@@ -8,8 +8,7 @@ import com.example.threekingdomsreader.data.source.GeneralsDataSource
 class GeneralsPresenter(
     val generalRepository: GeneralsRepository,
     val view: GeneralsContract.View
-) :
-    GeneralsContract.Presenter {
+) : GeneralsContract.Presenter {
 
     override var currentFiltering: GeneralFilterType = GeneralFilterType.ALL_GENERALS
 

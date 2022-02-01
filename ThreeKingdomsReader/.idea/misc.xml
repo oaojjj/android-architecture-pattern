@@ -7,12 +7,16 @@
         <entry key="..\:/Users/oxojj/StudioProjects/android-architecture-pattern/ThreeKingdomsReader/app/src/main/res/drawable/border.xml" value="0.290625" />
         <entry key="..\:/Users/oxojj/StudioProjects/android-architecture-pattern/ThreeKingdomsReader/app/src/main/res/drawable/border_down.xml" value="0.290625" />
         <entry key="..\:/Users/oxojj/StudioProjects/android-architecture-pattern/ThreeKingdomsReader/app/src/main/res/drawable/ic_add.xml" value="0.290625" />
+        <entry key="..\:/Users/oxojj/StudioProjects/android-architecture-pattern/ThreeKingdomsReader/app/src/main/res/drawable/ic_delete.xml" value="0.290625" />
+        <entry key="..\:/Users/oxojj/StudioProjects/android-architecture-pattern/ThreeKingdomsReader/app/src/main/res/drawable/ic_edit.xml" value="0.290625" />
+        <entry key="..\:/Users/oxojj/StudioProjects/android-architecture-pattern/ThreeKingdomsReader/app/src/main/res/drawable/ic_save.xml" value="0.290625" />
         <entry key="..\:/Users/oxojj/StudioProjects/android-architecture-pattern/ThreeKingdomsReader/app/src/main/res/layout/activity_main.xml" value="0.2" />
         <entry key="..\:/Users/oxojj/StudioProjects/android-architecture-pattern/ThreeKingdomsReader/app/src/main/res/layout/fragment_add_edit_general.xml" value="0.27447916666666666" />
         <entry key="..\:/Users/oxojj/StudioProjects/android-architecture-pattern/ThreeKingdomsReader/app/src/main/res/layout/fragment_general.xml" value="0.2" />
         <entry key="..\:/Users/oxojj/StudioProjects/android-architecture-pattern/ThreeKingdomsReader/app/src/main/res/layout/fragment_general_detail.xml" value="0.27447916666666666" />
         <entry key="..\:/Users/oxojj/StudioProjects/android-architecture-pattern/ThreeKingdomsReader/app/src/main/res/layout/fragment_generals.xml" value="0.4" />
         <entry key="..\:/Users/oxojj/StudioProjects/android-architecture-pattern/ThreeKingdomsReader/app/src/main/res/layout/item_general.xml" value="0.5537688442211055" />
+        <entry key="..\:/Users/oxojj/StudioProjects/android-architecture-pattern/ThreeKingdomsReader/app/src/main/res/menu/menu_general.xml" value="0.27447916666666666" />
       </map>
     </option>
   </component>

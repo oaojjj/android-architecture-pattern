@@ -1,15 +1,19 @@
 package com.example.threekingdomsreader.general
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
+import android.view.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.view.menu.MenuBuilder
+import androidx.core.view.forEach
+import com.example.threekingdomsreader.R
 import com.example.threekingdomsreader.data.General
 import com.example.threekingdomsreader.databinding.FragmentGeneralBinding
+import com.example.threekingdomsreader.main.MainActivity
 import com.example.threekingdomsreader.main.MainPresenter
 import com.example.threekingdomsreader.util.Utils
 
@@ -29,6 +33,7 @@ class GeneralFragment(private val mainPresenter: MainPresenter) : Fragment(), Ge
     ): View? {
         Log.d("frag2Life", "onCreateView")
         _binding = FragmentGeneralBinding.inflate(layoutInflater)
+        setHasOptionsMenu(true)
         return binding.root
     }
 
@@ -46,7 +51,28 @@ class GeneralFragment(private val mainPresenter: MainPresenter) : Fragment(), Ge
     override fun onResume() {
         super.onResume()
         Log.d("frag2Life", "onResume")
+
+        // change toolbar title
+        (requireActivity() as MainActivity).title = resources.getString(R.string.general_info)
+
         presenter.start()
+    }
+
+    @SuppressLint("RestrictedApi")
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.menu_general, menu)
+
+        if (menu is MenuBuilder) {
+            menu.setOptionalIconsVisible(true)
+        }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return super.onOptionsItemSelected(item)
+        when (item.itemId) {
+
+        }
     }
 
     override fun setGeneral(general: General) {

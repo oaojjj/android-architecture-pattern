@@ -3,10 +3,8 @@ package com.example.threekingdomsreader.generals
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
+import android.view.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -30,7 +28,7 @@ class GeneralsFragment(private val mainPresenter: MainPresenter) : Fragment(),
 
     private var itemListener: GeneralItemListener = object : GeneralItemListener {
         override fun onGeneralClick(clickGeneral: General) {
-            showGeneral(clickGeneral)
+            showGeneral(clickGeneral.id)
         }
 
     }
@@ -62,7 +60,6 @@ class GeneralsFragment(private val mainPresenter: MainPresenter) : Fragment(),
             })
         }
 
-
         // set up progress indicator
         binding.srlGenerals.setOnRefreshListener {
             presenter.loadGenerals(false)
@@ -79,8 +76,10 @@ class GeneralsFragment(private val mainPresenter: MainPresenter) : Fragment(),
     override fun onResume() {
         super.onResume()
         Log.d("fragLife", "onResume: ")
+
         presenter.start()
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -100,8 +99,8 @@ class GeneralsFragment(private val mainPresenter: MainPresenter) : Fragment(),
         binding.noGenerals.visibility = View.GONE
     }
 
-    override fun showGeneral(general: General) {
-        mainPresenter.addEditDetailGeneral(general)
+    override fun showGeneral(generalId: Long?) {
+        mainPresenter.addEditDetailGeneral(generalId)
     }
 
     override fun showNoGenerals() {

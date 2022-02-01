@@ -31,8 +31,8 @@ class MainPresenter(val view: MainContract.View) : MainContract.Presenter {
         }
     }
 
-    override fun addEditDetailGeneral(general: General?) {
-        view.showGeneral(general)
+    override fun addEditDetailGeneral(generalId: Long?) {
+        view.showGeneral(generalId)
     }
 
     override fun scrollControl(scrollY: Int, oldY: Int) {
