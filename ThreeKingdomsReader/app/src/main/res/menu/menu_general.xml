@@ -3,19 +3,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <group>
         <item
-            android:id="@+id/save_general"
-            android:icon="@drawable/ic_save"
-            android:title="저장"
-            app:showAsAction="never|withText" />
-        <item
-            android:id="@+id/edit_general"
-            android:icon="@drawable/ic_edit"
+            android:id="@+id/lock_general"
+            android:icon="@drawable/ic_lock"
+            android:iconTint="@color/white"
             android:title="변경"
-            app:showAsAction="never" />
+            app:showAsAction="always" />
         <item
             android:id="@+id/delete_general"
             android:icon="@drawable/ic_delete"
+            android:iconTint="@color/white"
             android:title="삭제"
-            app:showAsAction="never" />
+            app:showAsAction="always" />
     </group>
 </menu>

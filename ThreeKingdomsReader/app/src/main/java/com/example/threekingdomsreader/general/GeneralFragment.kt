@@ -2,14 +2,15 @@ package com.example.threekingdomsreader.general
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.menu.MenuBuilder
-import androidx.core.view.forEach
+import androidx.core.view.children
 import com.example.threekingdomsreader.R
 import com.example.threekingdomsreader.data.General
 import com.example.threekingdomsreader.databinding.FragmentGeneralBinding
@@ -26,6 +27,9 @@ class GeneralFragment(private val mainPresenter: MainPresenter) : Fragment(), Ge
 
     override var isActive: Boolean = false
         get() = isAdded
+
+    // 상태가 true면 변경 불가능, false면 변경 가능
+    var lock: Boolean = true
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -63,26 +67,33 @@ class GeneralFragment(private val mainPresenter: MainPresenter) : Fragment(), Ge
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.menu_general, menu)
 
+        presenter.checkViewState(menu.findItem(R.id.lock_general), lock)
+
         if (menu is MenuBuilder) {
             menu.setOptionalIconsVisible(true)
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return super.onOptionsItemSelected(item)
-        when (item.itemId) {
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.lock_general -> requireActivity().invalidateOptionsMenu()
+            R.id.delete_general -> {
+            }
+            else -> return super.onOptionsItemSelected(item)
         }
+        return super.onOptionsItemSelected(item)
     }
 
     override fun setGeneral(general: General) {
+        Log.d("generalFragment", "setGeneral: $general")
         with(binding) {
-            nameGeneral.text = general.name
-            sexGeneral.text = general.sex
-            belongGeneral.text = general.belong
-            positionGeneral.text = general.position
-            dateGeneral.text = (general.birth.toString() + "~" + general.death.toString())
-            descriptionGeneral.text = general.description
+            nameGeneral.setText(general.name)
+            sexGeneral.setText(general.sex)
+            belongGeneral.setText(general.belong)
+            positionGeneral.setText(general.position)
+            dateGeneral.setText((general.birth.toString() + "~" + general.death.toString()))
+            descriptionGeneral.setText(general.description)
 
             Utils.getColorAccordingBelong(requireContext(), general.belong).let {
                 container.setBackgroundColor(it)
@@ -92,6 +103,27 @@ class GeneralFragment(private val mainPresenter: MainPresenter) : Fragment(), Ge
 
     override fun showEmptyGeneralError() {
         Toast.makeText(context, "무장 정보가 없습니다.", Toast.LENGTH_SHORT).show()
+    }
+
+    override fun enableEditView(item: MenuItem) {
+        item.setIcon(R.drawable.ic_unlock)
+        binding.frameView.children.forEach { it.isEnabled = true }
+        lock = true
+    }
+
+    override fun unableEditView(item: MenuItem) {
+        item.setIcon(R.drawable.ic_lock)
+        binding.frameView.children.forEach { it.isEnabled = false }
+        lock = false
+    }
+
+    override fun showEmptyGeneral() {
+        binding.frameView.children.forEach {
+            if (it is TextView)
+                it.setTextColor(Color.BLACK)
+        }
+        lock = false
+        requireActivity().invalidateOptionsMenu()
     }
 
     override fun onDestroyView() {

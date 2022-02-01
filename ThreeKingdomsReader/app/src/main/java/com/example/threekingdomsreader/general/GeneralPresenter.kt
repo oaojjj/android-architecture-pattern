@@ -1,5 +1,6 @@
 package com.example.threekingdomsreader.general
 
+import android.view.MenuItem
 import com.example.threekingdomsreader.data.General
 import com.example.threekingdomsreader.data.GeneralsRepository
 import com.example.threekingdomsreader.data.source.GeneralsDataSource
@@ -16,11 +17,13 @@ class GeneralPresenter(
 
     override fun start() {
         if (generalId != null) {
-            populateTask()
+            populateGeneral()
+        } else {
+            view.showEmptyGeneral()
         }
     }
 
-    override fun populateTask() {
+    override fun populateGeneral() {
         generalRepository.getGeneral(generalId, object : GeneralsDataSource.GetGeneralCallback {
             override fun onGeneralLoaded(general: General) {
                 if (view.isActive) {
@@ -35,6 +38,13 @@ class GeneralPresenter(
             }
 
         })
+    }
+
+    override fun checkViewState(item: MenuItem, lock: Boolean) {
+        when (lock) {
+            true -> view.unableEditView(item)
+            false -> view.enableEditView(item)
+        }
     }
 
 }

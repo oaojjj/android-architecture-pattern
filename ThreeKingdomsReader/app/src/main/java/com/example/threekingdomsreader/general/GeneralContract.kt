@@ -1,5 +1,6 @@
 package com.example.threekingdomsreader.general
 
+import android.view.MenuItem
 import com.example.threekingdomsreader.BasePresenter
 import com.example.threekingdomsreader.BaseView
 import com.example.threekingdomsreader.data.General
@@ -15,10 +16,17 @@ interface GeneralContract {
 
         fun showEmptyGeneralError()
 
+        fun showEmptyGeneral()
+
+        fun enableEditView(item: MenuItem)
+
+        fun unableEditView(item: MenuItem)
     }
 
     interface Presenter : BasePresenter {
-        fun populateTask()
+        fun populateGeneral()
+
+        fun checkViewState(item: MenuItem, lock: Boolean)
     }
 
 }

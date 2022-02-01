@@ -39,10 +39,10 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         }
 
         // change only overflow menu icon color
-        findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar).overflowIcon?.setColorFilter(
+        /*findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar).overflowIcon?.setColorFilter(
             Color.WHITE,
             PorterDuff.Mode.SRC_ATOP
-        )
+        )*/
 
         showGenerals()
 

@@ -65,11 +65,10 @@ class GeneralsFragment(private val mainPresenter: MainPresenter) : Fragment(),
             presenter.loadGenerals(false)
         }
 
-        requireActivity()
-            .findViewById<FloatingActionButton>(R.id.fab_add_general)
+        // set the fab click listener
+        requireActivity().findViewById<FloatingActionButton>(R.id.fab_add_general)
             .setOnClickListener {
-                listAdapter.generals = mutableListOf()
-                showNoGenerals()
+                showGeneral(null)
             }
     }
 

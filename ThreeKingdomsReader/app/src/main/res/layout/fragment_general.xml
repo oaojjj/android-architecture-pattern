@@ -7,10 +7,11 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/grey_200"
+    android:background="@color/grey_300"
     tools:context=".general.GeneralFragment">
 
     <LinearLayout
+        android:id="@+id/frame_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
@@ -24,7 +25,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
+        <EditText
             android:id="@+id/name_general"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -36,19 +37,19 @@
             android:textSize="18sp"
             android:textStyle="bold" />
 
-        <TextView
+        <EditText
             android:id="@+id/sex_general"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/border_under"
             android:gravity="center"
             android:hint="성별"
-            android:paddingVertical="2dp"
+            android:paddingVertical="4dp"
             android:textColor="@color/white"
             android:textSize="16sp" />
 
 
-        <TextView
+        <EditText
             android:id="@+id/date_general"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -59,7 +60,7 @@
             android:textColor="@color/white"
             android:textSize="14sp" />
 
-        <TextView
+        <EditText
             android:id="@+id/belong_general"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -71,26 +72,27 @@
             android:textSize="16sp"
             android:textStyle="bold" />
 
-        <TextView
+        <EditText
             android:id="@+id/position_general"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/border_under"
             android:gravity="center"
             android:hint="직위"
-            android:paddingVertical="2dp"
+            android:paddingVertical="4dp"
             android:textColor="@color/white"
             android:textSize="16sp" />
 
 
-        <TextView
+        <EditText
             android:id="@+id/description_general"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
             android:hint="열전"
-            android:textSize="16sp"
             android:padding="8dp"
-            android:textColor="@color/white" />
+            android:textColor="@color/white"
+            android:textSize="16sp" />
 
     </LinearLayout>
 
