@@ -1,5 +1,6 @@
 package com.example.threekingdomsreader.general
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -26,6 +27,7 @@ class GeneralFragment(private val mainPresenter: MainPresenter) : Fragment(), Ge
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        Log.d("frag2Life", "onCreateView")
         _binding = FragmentGeneralBinding.inflate(layoutInflater)
         return binding.root
     }
@@ -33,6 +35,7 @@ class GeneralFragment(private val mainPresenter: MainPresenter) : Fragment(), Ge
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        Log.d("frag2Life", "onViewCreated")
         binding.container.setOnScrollChangeListener { _, _, scrollY, _, oldY ->
             Log.d("scroll", "onViewCreated: $scrollY")
             mainPresenter.scrollControl(scrollY, oldY)
@@ -42,6 +45,7 @@ class GeneralFragment(private val mainPresenter: MainPresenter) : Fragment(), Ge
 
     override fun onResume() {
         super.onResume()
+        Log.d("frag2Life", "onResume")
         presenter.start()
     }
 
@@ -66,7 +70,40 @@ class GeneralFragment(private val mainPresenter: MainPresenter) : Fragment(), Ge
 
     override fun onDestroyView() {
         super.onDestroyView()
+        Log.d("frag2Life", "onDestroyView")
         _binding = null
     }
+
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        Log.d("frag2Life", "onAttach: $isActive")
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Log.d("frag2Life", "onStart: ")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.d("frag2Life", "onPause: ")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.d("frag2Life", "onStop: ")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("frag2Life", "onDestroy: ")
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        Log.d("frag2Life", "onDetach: ")
+    }
+
 
 }

@@ -9,8 +9,6 @@ import com.example.threekingdomsreader.generals.GeneralsPresenter
 
 class MainPresenter(val view: MainContract.View) : MainContract.Presenter {
 
-    val GENERAL_BUNDLE_KEY = "GENERAL_BUNDLE_KEY"
-
     init {
         view.presenter = this
     }

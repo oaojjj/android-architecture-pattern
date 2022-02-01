@@ -8,6 +8,8 @@ import com.example.threekingdomsreader.generals.GeneralsPresenter
 
 interface MainContract {
     interface View : BaseView<Presenter> {
+        fun showGenerals()
+
         fun showGeneral(general: General?)
 
         fun fabHide()

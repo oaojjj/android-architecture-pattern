@@ -17,6 +17,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class MainActivity : AppCompatActivity(), MainContract.View {
 
+    val GENERAL_BUNDLE_KEY = "GENERAL_BUNDLE_KEY"
+
     override var isActive: Boolean = false
         get() = isDestroyed
 
@@ -35,11 +37,24 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             title = "삼국지 무장 목록"
         }
 
+        showGenerals()
+
+        val generalId = savedInstanceState?.getLong(GENERAL_BUNDLE_KEY)
+        if (generalId != null && generalId > 0)
+            showGeneral(General(id = generalId))
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putSerializable(GENERAL_BUNDLE_KEY, presenter.generalPresenter?.generalId ?: -1)
+    }
+
+    override fun showGenerals() {
         // create the fragment
-        val generalsFragment = supportFragmentManager.findFragmentById(R.id.fl_main_container)
-                as GeneralsFragment? ?: addFragmentToActivity(
-            GeneralsFragment::class.java.name, R.id.fl_main_container
-        ) as GeneralsFragment
+        val fn = GeneralsFragment::class.java.name
+        val generalsFragment =
+            supportFragmentManager.findFragmentByTag(fn) as GeneralsFragment?
+                ?: replaceFragmentInActivity(fn, R.id.fl_main_container) as GeneralsFragment
 
         // create the presenter
         val generalsPresenter = GeneralsPresenter(
@@ -51,12 +66,10 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     override fun showGeneral(general: General?) {
-        val fragment =supportFragmentManager.findFragmentById(R.id.fl_main_container)
+        val fn = GeneralFragment::class.java.name
         // create the fragment
-        val generalFragment = /*supportFragmentManager.findFragmentById(R.id.fl_main_container)
-                as GeneralFragment? ?: */replaceFragmentInActivity(
-            GeneralFragment::class.java.name, R.id.fl_main_container
-        ) as GeneralFragment
+        val generalFragment = supportFragmentManager.findFragmentByTag(fn) as GeneralFragment?
+            ?: addFragmentToActivity(fn, R.id.fl_main_container) as GeneralFragment
 
         // create the presenter
         val generalPresenter = GeneralPresenter(
@@ -79,14 +92,14 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     private fun replaceFragmentInActivity(name: String, @IdRes frameId: Int): Fragment =
         with(supportFragmentManager) {
             fragmentFactory.instantiate(classLoader, name).also {
-                beginTransaction().replace(frameId, it).addToBackStack(null).commit()
+                beginTransaction().replace(frameId, it, name).commit()
             }
         }
 
     private fun addFragmentToActivity(name: String, @IdRes frameId: Int): Fragment =
         with(supportFragmentManager) {
             fragmentFactory.instantiate(classLoader, name).also {
-                beginTransaction().add(frameId, it).commit()
+                beginTransaction().add(frameId, it, name).addToBackStack(null).commit()
             }
         }
 

@@ -5,7 +5,7 @@ import com.example.threekingdomsreader.data.GeneralsRepository
 import com.example.threekingdomsreader.data.source.GeneralsDataSource
 
 class GeneralPresenter(
-    private val generalId: Long?,
+    val generalId: Long?,
     val generalRepository: GeneralsRepository,
     val view: GeneralContract.View
 ) : GeneralContract.Presenter {
