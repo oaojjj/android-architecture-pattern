@@ -17,6 +17,7 @@ import com.example.threekingdomsreader.databinding.FragmentGeneralBinding
 import com.example.threekingdomsreader.main.MainActivity
 import com.example.threekingdomsreader.main.MainPresenter
 import com.example.threekingdomsreader.util.Utils
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class GeneralFragment(private val mainPresenter: MainPresenter) : Fragment(), GeneralContract.View {
     private var _binding: FragmentGeneralBinding? = null
@@ -47,10 +48,30 @@ class GeneralFragment(private val mainPresenter: MainPresenter) : Fragment(), Ge
         Log.d("frag2Life", "onViewCreated")
         binding.container.setOnScrollChangeListener { _, _, scrollY, _, oldY ->
             Log.d("scroll", "onViewCreated: $scrollY")
-            mainPresenter.scrollControl(scrollY, oldY)
+            if (lock) mainPresenter.scrollControl(scrollY, oldY)
         }
 
+        requireActivity().findViewById<FloatingActionButton>(R.id.fab_add_general)
+            .setOnClickListener { presenter.saveGeneral(newGeneral()) }
     }
+
+    // MVP 구조를 공부하는 예제이며, 숫자 예외처리 같은건 생략
+    private fun newGeneral(): General =
+        with(binding) {
+            val date = dateGeneral.text.toString().trim().split('~')
+            General(
+                name = nameGeneral.text.toString(),
+                sex = sexGeneral.text.toString(),
+                image = "",
+                belong = belongGeneral.text.toString(),
+                position = positionGeneral.text.toString(),
+                birth = date[0],
+                death = date[1],
+                description = descriptionGeneral.text.toString(),
+                id = null
+            )
+        }
+
 
     override fun onResume() {
         super.onResume()
@@ -108,20 +129,29 @@ class GeneralFragment(private val mainPresenter: MainPresenter) : Fragment(), Ge
     override fun enableEditView(item: MenuItem) {
         item.setIcon(R.drawable.ic_unlock)
         binding.frameView.children.forEach { it.isEnabled = true }
+
+        requireActivity().findViewById<FloatingActionButton>(R.id.fab_add_general)
+            .setImageResource(R.drawable.ic_edit)
+
+        mainPresenter.view.fabShow()
         lock = true
     }
 
     override fun unableEditView(item: MenuItem) {
         item.setIcon(R.drawable.ic_lock)
         binding.frameView.children.forEach { it.isEnabled = false }
+        mainPresenter.view.fabHide()
         lock = false
     }
 
     override fun showEmptyGeneral() {
         binding.frameView.children.forEach {
-            if (it is TextView)
-                it.setTextColor(Color.BLACK)
+            if (it is TextView) it.setTextColor(Color.BLACK)
         }
+
+        requireActivity().findViewById<FloatingActionButton>(R.id.fab_add_general)
+            .setImageResource(R.drawable.ic_edit)
+
         lock = false
         requireActivity().invalidateOptionsMenu()
     }
@@ -161,6 +191,10 @@ class GeneralFragment(private val mainPresenter: MainPresenter) : Fragment(), Ge
     override fun onDetach() {
         super.onDetach()
         Log.d("frag2Life", "onDetach: ")
+
+        requireActivity().findViewById<FloatingActionButton>(R.id.fab_add_general)
+            .setImageResource(R.drawable.ic_add)
+        mainPresenter.view.fabShow()
     }
 
 

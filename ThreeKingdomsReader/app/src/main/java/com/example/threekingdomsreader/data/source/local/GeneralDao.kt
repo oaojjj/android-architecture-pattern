@@ -19,7 +19,7 @@ interface GeneralDao {
     fun getGenerals(): List<General>
 
     /**
-     * Insert generals from the "generals.db".
+     * Insert generals from the "Generals.db".
      *
      * @param generals the generals to add
      */

@@ -27,6 +27,8 @@ interface GeneralContract {
         fun populateGeneral()
 
         fun checkViewState(item: MenuItem, lock: Boolean)
+
+        fun saveGeneral(newGeneral: General)
     }
 
 }

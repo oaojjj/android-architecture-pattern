@@ -1,5 +1,6 @@
 package com.example.threekingdomsreader.general
 
+import android.util.Log
 import android.view.MenuItem
 import com.example.threekingdomsreader.data.General
 import com.example.threekingdomsreader.data.GeneralsRepository
@@ -45,6 +46,10 @@ class GeneralPresenter(
             true -> view.unableEditView(item)
             false -> view.enableEditView(item)
         }
+    }
+
+    override fun saveGeneral(newGeneral: General) {
+        Log.d("generalPresenter", "saveGeneral: $newGeneral")
     }
 
 }

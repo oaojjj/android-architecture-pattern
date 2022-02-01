@@ -12,8 +12,8 @@ data class General @JvmOverloads constructor(
     @ColumnInfo(name = "image") var image: String = "",
     @ColumnInfo(name = "belong") var belong: String = "",
     @ColumnInfo(name = "position") var position: String = "",
-    @ColumnInfo(name = "birth") var birth: Int = 0,
-    @ColumnInfo(name = "death") var death: Int = 0,
+    @ColumnInfo(name = "birth") var birth: String = "0",
+    @ColumnInfo(name = "death") var death: String = "0",
     @ColumnInfo(name = "description") var description: String = "",
-    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "id") var id: Long
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "id") var id: Long?
 ) : Serializable

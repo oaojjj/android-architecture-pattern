@@ -74,7 +74,7 @@ class GeneralsRepository(
         with(general) {
             val cachedGeneral =
                 General(name, sex, image, belong, position, birth, death, description, id)
-            cachedGenerals[cachedGeneral.id] = cachedGeneral
+            cachedGenerals[cachedGeneral.id!!] = cachedGeneral
             perform(cachedGeneral)
         }
 
