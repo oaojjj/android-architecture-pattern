@@ -29,6 +29,7 @@ class GeneralPresenter(
         generalRepository.getGeneral(generalId, object : GeneralsDataSource.GetGeneralCallback {
             override fun onGeneralLoaded(general: General) {
                 if (view.isActive) {
+                    cachedGeneralImageUrl(general.image)
                     view.setGeneral(general)
                 }
             }
@@ -56,7 +57,6 @@ class GeneralPresenter(
         } else {
             updateGeneral(newGeneral)
         }
-
     }
 
     private fun createGeneral(general: General) {
@@ -64,6 +64,7 @@ class GeneralPresenter(
             view.showEmptyGeneralError()
         } else {
             generalRepository.saveGeneral(general)
+            view.showCreateGeneral()
             view.showGenerals()
         }
     }
@@ -71,6 +72,7 @@ class GeneralPresenter(
     private fun updateGeneral(general: General) {
         general.id = generalId
         generalRepository.saveGeneral(general)
+        view.showUpdateGeneral()
         view.showGenerals()
     }
 
@@ -80,7 +82,12 @@ class GeneralPresenter(
     }
 
     override fun deleteGeneral() {
-        TODO("Not yet implemented")
+        if (generalId == null) {
+            view.showMissingGeneral()
+        } else {
+            generalRepository.deleteGeneral(generalId)
+            view.showGeneralDeleted()
+        }
     }
 
 }

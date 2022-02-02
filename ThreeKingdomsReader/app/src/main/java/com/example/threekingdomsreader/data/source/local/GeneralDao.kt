@@ -1,9 +1,6 @@
 package com.example.threekingdomsreader.data.source.local
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 import com.example.threekingdomsreader.data.General
 
 /**
@@ -27,7 +24,6 @@ interface GeneralDao {
     @Insert
     fun addGenerals(generals: List<General>)
 
-
     /**
      * Select a general by id.
      *
@@ -37,7 +33,16 @@ interface GeneralDao {
     @Query("SELECT * FROM generals WHERE id = :generalId")
     fun getGeneralById(generalId: Long?): General?
 
+    /**
+     * Insert a general by id.
+     */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertGeneral(general: General)
+
+    /**
+     * Delete a general by id.
+     */
+    @Query("DELETE FROM generals WHERE id=:generalId")
+    fun deleteGeneralById(generalId: Long)
 
 }

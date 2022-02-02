@@ -175,6 +175,23 @@ class GeneralFragment(private val mainPresenter: MainPresenter) : Fragment(), Ge
         parentFragmentManager.popBackStack()
     }
 
+    override fun showMissingGeneral() {
+        Toast.makeText(context, "지울 수 없습니다.", Toast.LENGTH_SHORT).show()
+    }
+
+    override fun showGeneralDeleted() {
+        Toast.makeText(context, "무장 정보를 삭제하였습니다.", Toast.LENGTH_SHORT).show()
+        parentFragmentManager.popBackStack()
+    }
+
+    override fun showCreateGeneral() {
+        Toast.makeText(context, "무장을 생성했습니다.", Toast.LENGTH_SHORT).show()
+    }
+
+    override fun showUpdateGeneral() {
+        Toast.makeText(context, "무장 정보를 업데이트하였습니다.", Toast.LENGTH_SHORT).show()
+    }
+
     override fun showEmptyGeneral() {
         binding.frameView.children.forEach {
             if (it is TextView) it.setTextColor(Color.BLACK)

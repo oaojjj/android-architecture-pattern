@@ -27,6 +27,14 @@ interface GeneralContract {
         fun showGeneralImage(url: String)
 
         fun showGenerals()
+
+        fun showMissingGeneral()
+
+        fun showGeneralDeleted()
+
+        fun showCreateGeneral()
+
+        fun showUpdateGeneral()
     }
 
     interface Presenter : BasePresenter {

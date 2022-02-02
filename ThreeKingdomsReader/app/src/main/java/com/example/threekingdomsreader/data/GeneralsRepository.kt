@@ -102,9 +102,9 @@ class GeneralsRepository(
     }
 
     override fun deleteGeneral(generalId: Long) {
-        TODO("Not yet implemented")
+        generalsLocalDataSource.deleteGeneral(generalId)
+        cachedGenerals.remove(generalId)
     }
-
 
     companion object {
         private var INSTANCE: GeneralsRepository? = null

@@ -48,7 +48,7 @@ class GeneralsLocalDataSource private constructor(
     }
 
     override fun refreshGenerals() {
-        TODO("Not yet implemented")
+        // nothing
     }
 
     override fun deleteAllGenerals() {
@@ -56,7 +56,7 @@ class GeneralsLocalDataSource private constructor(
     }
 
     override fun deleteGeneral(generalId: Long) {
-        TODO("Not yet implemented")
+        appExecutors.diskIO.execute { generalDao.deleteGeneralById(generalId) }
     }
 
     companion object {
