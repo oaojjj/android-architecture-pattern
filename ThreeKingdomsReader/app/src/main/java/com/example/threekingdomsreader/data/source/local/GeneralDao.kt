@@ -2,6 +2,7 @@ package com.example.threekingdomsreader.data.source.local
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.threekingdomsreader.data.General
 
@@ -35,5 +36,8 @@ interface GeneralDao {
      */
     @Query("SELECT * FROM generals WHERE id = :generalId")
     fun getGeneralById(generalId: Long?): General?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertGeneral(general: General)
 
 }

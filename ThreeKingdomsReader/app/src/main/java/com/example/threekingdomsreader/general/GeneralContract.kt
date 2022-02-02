@@ -21,14 +21,26 @@ interface GeneralContract {
         fun enableEditView(item: MenuItem)
 
         fun unableEditView(item: MenuItem)
+
+        fun showImageSaveDialog()
+
+        fun showGeneralImage(url: String)
+
+        fun showGenerals()
     }
 
     interface Presenter : BasePresenter {
+        var cachedGeneralImageUrl: String?
+
         fun populateGeneral()
 
         fun checkViewState(item: MenuItem, lock: Boolean)
 
         fun saveGeneral(newGeneral: General)
+
+        fun cachedGeneralImageUrl(url: String)
+
+        fun deleteGeneral()
     }
 
 }

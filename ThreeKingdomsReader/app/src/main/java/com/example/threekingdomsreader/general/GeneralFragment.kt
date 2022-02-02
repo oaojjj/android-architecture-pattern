@@ -1,16 +1,18 @@
 package com.example.threekingdomsreader.general
 
 import android.annotation.SuppressLint
-import android.content.Context
+import android.app.AlertDialog
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.EditText
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import android.widget.Toast
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.core.view.children
+import com.bumptech.glide.Glide
 import com.example.threekingdomsreader.R
 import com.example.threekingdomsreader.data.General
 import com.example.threekingdomsreader.databinding.FragmentGeneralBinding
@@ -36,7 +38,6 @@ class GeneralFragment(private val mainPresenter: MainPresenter) : Fragment(), Ge
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        Log.d("frag2Life", "onCreateView")
         _binding = FragmentGeneralBinding.inflate(layoutInflater)
         setHasOptionsMenu(true)
         return binding.root
@@ -45,24 +46,29 @@ class GeneralFragment(private val mainPresenter: MainPresenter) : Fragment(), Ge
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        Log.d("frag2Life", "onViewCreated")
         binding.container.setOnScrollChangeListener { _, _, scrollY, _, oldY ->
-            Log.d("scroll", "onViewCreated: $scrollY")
             if (lock) mainPresenter.scrollControl(scrollY, oldY)
         }
 
         requireActivity().findViewById<FloatingActionButton>(R.id.fab_add_general)
-            .setOnClickListener { presenter.saveGeneral(newGeneral()) }
+            .setOnClickListener {
+                val general = newGeneral()
+                presenter.saveGeneral(general)
+            }
+
+        binding.imageGeneral.setOnClickListener {
+            showImageSaveDialog()
+        }
     }
 
-    // MVP 구조를 공부하는 예제이며, 숫자 예외처리 같은건 생략
     private fun newGeneral(): General =
         with(binding) {
             val date = dateGeneral.text.toString().trim().split('~')
+            if (date.size < 2) return General(id = null)
+
             General(
                 name = nameGeneral.text.toString(),
                 sex = sexGeneral.text.toString(),
-                image = "",
                 belong = belongGeneral.text.toString(),
                 position = positionGeneral.text.toString(),
                 birth = date[0],
@@ -99,8 +105,7 @@ class GeneralFragment(private val mainPresenter: MainPresenter) : Fragment(), Ge
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.lock_general -> requireActivity().invalidateOptionsMenu()
-            R.id.delete_general -> {
-            }
+            R.id.delete_general -> presenter.deleteGeneral()
             else -> return super.onOptionsItemSelected(item)
         }
         return super.onOptionsItemSelected(item)
@@ -109,11 +114,12 @@ class GeneralFragment(private val mainPresenter: MainPresenter) : Fragment(), Ge
     override fun setGeneral(general: General) {
         Log.d("generalFragment", "setGeneral: $general")
         with(binding) {
+            showGeneralImage(general.image)
             nameGeneral.setText(general.name)
             sexGeneral.setText(general.sex)
             belongGeneral.setText(general.belong)
             positionGeneral.setText(general.position)
-            dateGeneral.setText((general.birth.toString() + "~" + general.death.toString()))
+            dateGeneral.setText((general.birth + "~" + general.death))
             descriptionGeneral.setText(general.description)
 
             Utils.getColorAccordingBelong(requireContext(), general.belong).let {
@@ -123,7 +129,8 @@ class GeneralFragment(private val mainPresenter: MainPresenter) : Fragment(), Ge
     }
 
     override fun showEmptyGeneralError() {
-        Toast.makeText(context, "무장 정보가 없습니다.", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, getString(R.string.empty_general_message), Toast.LENGTH_SHORT)
+            .show()
     }
 
     override fun enableEditView(item: MenuItem) {
@@ -144,6 +151,30 @@ class GeneralFragment(private val mainPresenter: MainPresenter) : Fragment(), Ge
         lock = false
     }
 
+    override fun showImageSaveDialog() {
+        val builder = AlertDialog.Builder(requireActivity())
+        builder.apply {
+            setView(R.layout.dialog_pick_image)
+            setPositiveButton("저장") { dialog, _ ->
+                val url =
+                    (dialog as AlertDialog).findViewById<EditText>(R.id.et_image_url).text.toString()
+                presenter.cachedGeneralImageUrl(url)
+            }
+            setNegativeButton("취소", null)
+        }.create().show()
+    }
+
+    override fun showGeneralImage(url: String) {
+        Glide.with(this@GeneralFragment).load(url)
+            .placeholder(R.drawable.ic_error)
+            .error(R.drawable.ic_error)
+            .into(binding.imageGeneral)
+    }
+
+    override fun showGenerals() {
+        parentFragmentManager.popBackStack()
+    }
+
     override fun showEmptyGeneral() {
         binding.frameView.children.forEach {
             if (it is TextView) it.setTextColor(Color.BLACK)
@@ -158,44 +189,11 @@ class GeneralFragment(private val mainPresenter: MainPresenter) : Fragment(), Ge
 
     override fun onDestroyView() {
         super.onDestroyView()
-        Log.d("frag2Life", "onDestroyView")
         _binding = null
-    }
-
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        Log.d("frag2Life", "onAttach: $isActive")
-    }
-
-    override fun onStart() {
-        super.onStart()
-        Log.d("frag2Life", "onStart: ")
-    }
-
-    override fun onPause() {
-        super.onPause()
-        Log.d("frag2Life", "onPause: ")
-    }
-
-    override fun onStop() {
-        super.onStop()
-        Log.d("frag2Life", "onStop: ")
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        Log.d("frag2Life", "onDestroy: ")
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        Log.d("frag2Life", "onDetach: ")
 
         requireActivity().findViewById<FloatingActionButton>(R.id.fab_add_general)
             .setImageResource(R.drawable.ic_add)
+
         mainPresenter.view.fabShow()
     }
-
-
 }

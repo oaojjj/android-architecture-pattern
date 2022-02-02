@@ -1,6 +1,5 @@
 package com.example.threekingdomsreader.general
 
-import android.util.Log
 import android.view.MenuItem
 import com.example.threekingdomsreader.data.General
 import com.example.threekingdomsreader.data.GeneralsRepository
@@ -11,6 +10,8 @@ class GeneralPresenter(
     val generalRepository: GeneralsRepository,
     val view: GeneralContract.View
 ) : GeneralContract.Presenter {
+
+    override var cachedGeneralImageUrl: String? = null
 
     init {
         view.presenter = this
@@ -49,7 +50,37 @@ class GeneralPresenter(
     }
 
     override fun saveGeneral(newGeneral: General) {
-        Log.d("generalPresenter", "saveGeneral: $newGeneral")
+        newGeneral.image = cachedGeneralImageUrl ?: ""
+        if (generalId == null) {
+            createGeneral(newGeneral)
+        } else {
+            updateGeneral(newGeneral)
+        }
+
+    }
+
+    private fun createGeneral(general: General) {
+        if (general.isEmpty) {
+            view.showEmptyGeneralError()
+        } else {
+            generalRepository.saveGeneral(general)
+            view.showGenerals()
+        }
+    }
+
+    private fun updateGeneral(general: General) {
+        general.id = generalId
+        generalRepository.saveGeneral(general)
+        view.showGenerals()
+    }
+
+    override fun cachedGeneralImageUrl(url: String) {
+        cachedGeneralImageUrl = url
+        view.showGeneralImage(url)
+    }
+
+    override fun deleteGeneral() {
+        TODO("Not yet implemented")
     }
 
 }

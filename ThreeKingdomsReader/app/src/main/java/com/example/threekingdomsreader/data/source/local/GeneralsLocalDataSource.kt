@@ -44,7 +44,7 @@ class GeneralsLocalDataSource private constructor(
     }
 
     override fun saveGeneral(general: General) {
-        TODO("Not yet implemented")
+        appExecutors.diskIO.execute { generalDao.insertGeneral(general) }
     }
 
     override fun refreshGenerals() {

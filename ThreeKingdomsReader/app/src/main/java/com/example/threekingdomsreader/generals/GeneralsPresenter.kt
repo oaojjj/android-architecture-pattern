@@ -82,11 +82,11 @@ class GeneralsPresenter(
             showFilterText()
         } else {
             // 해당 필터 유형에 대한 작업이 없음 때 호출한다.
-            processEmptyTasks()
+            processEmptyGenerals()
         }
     }
 
-    private fun processEmptyTasks() {
+    private fun processEmptyGenerals() {
         when (currentFiltering) {
             GeneralFilterType.MARK_GENERALS -> {
 

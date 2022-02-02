@@ -1,12 +1,16 @@
 package com.example.threekingdomsreader.generals
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.core.view.children
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.threekingdomsreader.R
 import com.example.threekingdomsreader.data.General
 import com.example.threekingdomsreader.databinding.ItemGeneralBinding
@@ -38,13 +42,17 @@ class GeneralsAdapter(items: List<General>, private val itemListener: GeneralIte
         fun bind(general: General) {
             currentGeneral = general
             with(binding) {
+                Glide.with(itemView).load(general.image)
+                    .placeholder(R.drawable.ic_error)
+                    .error(R.drawable.ic_error)
+                    .into(imageGeneral)
                 nameGeneral.text = general.name
                 sexGeneral.text = general.sex
                 belongGeneral.text = general.belong
                 positionGeneral.text = general.position
 
-                Utils.getColorAccordingBelong(root.context, general.belong).let {
-                    container.setBackgroundColor(it)
+                Utils.getColorAccordingBelong(root.context, general.belong).let { color ->
+                    container.setBackgroundColor(color)
                 }
 
             }

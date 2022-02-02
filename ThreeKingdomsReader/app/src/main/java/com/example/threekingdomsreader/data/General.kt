@@ -16,4 +16,7 @@ data class General @JvmOverloads constructor(
     @ColumnInfo(name = "death") var death: String = "0",
     @ColumnInfo(name = "description") var description: String = "",
     @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "id") var id: Long?
-) : Serializable
+) : Serializable {
+    val isEmpty
+        get() = name.isEmpty() || sex.isEmpty() || belong.isEmpty() || position.isEmpty() || birth.isEmpty() || death.isEmpty() || description.isEmpty()
+}

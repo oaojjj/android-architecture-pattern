@@ -72,6 +72,7 @@ class GeneralsRepository(
 
     private fun cacheAndPerform(general: General, perform: (General) -> Unit) =
         with(general) {
+            if (id == null) id = cachedGenerals[cachedGenerals.size.toLong()]?.id?.plus(1)
             val cachedGeneral =
                 General(name, sex, image, belong, position, birth, death, description, id)
             cachedGenerals[cachedGeneral.id!!] = cachedGeneral
@@ -87,7 +88,9 @@ class GeneralsRepository(
 
 
     override fun saveGeneral(general: General) {
-        TODO("Not yet implemented")
+        cacheAndPerform(general) {
+            generalsLocalDataSource.saveGeneral(general)
+        }
     }
 
     override fun refreshGenerals() {

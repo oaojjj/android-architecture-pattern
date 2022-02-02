@@ -7,4 +7,5 @@
     <string name="text_all">삼국지 무장 목록</string>
     <string name="loading_generals_error">불러오는 중 오류 발생</string>
     <string name="general_info">무장 정보</string>
+    <string name="empty_general_message">무장 정보가 비어있습니다.</string>
 </resources>
